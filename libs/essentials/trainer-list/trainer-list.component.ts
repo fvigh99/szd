@@ -4,18 +4,32 @@ import { CarouselModule } from 'primeng/carousel';
 import { UserService } from 'libs/data-access/user/user.service';
 import { User } from 'libs/model/FcServerModel';
 import { Observable } from 'rxjs';
+import { TrainerScheduleComponent } from '../trainer-schedule/trainer-schedule.component';
 
 @Component({
   selector: 'fc-trainer-list',
   standalone: true,
-  imports: [CommonModule, CarouselModule, AsyncPipe, NgIf],
+  imports: [
+    CommonModule,
+    CarouselModule,
+    AsyncPipe,
+    NgIf,
+    TrainerScheduleComponent,
+  ],
   templateUrl: './trainer-list.component.html',
   styleUrl: './trainer-list.component.scss',
 })
 export class TrainerListComponent implements OnInit {
-  public trainerList: Observable<User>;
+  public trainerList: Observable<User[]>;
+  public listView = true;
+  public selectedTrainer: User;
   constructor(private userService: UserService) {}
   ngOnInit(): void {
-    this.userService.getTrainers().subscribe();
+    this.trainerList = this.userService.getTrainers();
+  }
+
+  public imageClicked(value: User) {
+    this.selectedTrainer = value;
+    this.listView = false;
   }
 }
