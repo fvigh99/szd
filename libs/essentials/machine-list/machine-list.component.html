@@ -1,0 +1,20 @@
+<p-carousel
+  [value]="machineList"
+  [numVisible]="3"
+  [numScroll]="3"
+  [circular]="false"
+>
+  <ng-template let-product pTemplate="item">
+    <div class="border-1 surface-border border-round m-2 text-center py-5 px-3">
+      <div class="mb-3">
+        <img
+          src="https://primefaces.org/cdn/primeng/images/demo/product/{{
+            product.image
+          }}"
+          [alt]="product.name"
+          class="w-6 shadow-2"
+        />
+      </div>
+    </div>
+  </ng-template>
+</p-carousel>

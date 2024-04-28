@@ -1,0 +1,39 @@
+<form #form="ngForm">
+  <div class="row col-lg-12">
+    <div class="col-lg-8">
+      <p-tabMenu
+        [model]="items"
+        [activeItem]="activeItem"
+        (activeItemChange)="onActiveItemChange($event)"
+        [style.width]="'80%'"
+      >
+        <ng-template pTemplate="item" let-item>
+          <a
+            class="p-menuitem-link flex justify-content-between align-items-center p-3"
+          >
+            <div>
+              <span>{{ item.label }}</span>
+            </div>
+          </a>
+        </ng-template>
+      </p-tabMenu>
+    </div>
+    <div class="login col-lg-4 pt-3">
+      <ng-container *ngIf="!userAccount.username; else loggedIn">
+        <button pButton (click)="navigateToLogin()" [disabled]="login">
+          Bejelentkezés
+        </button>
+      </ng-container>
+      <ng-template #loggedIn>
+        <span> Bejelentkezve, mint {{ userAccount.username }} </span>
+        <button pButton (click)="logout()">Kijelentkezés</button>
+      </ng-template>
+    </div>
+  </div>
+</form>
+<ng-container *ngIf="login">
+  <fc-login
+    (loginStatusChanged)="checkLoginStatus($event)"
+    (loginOver)="loginOver()"
+  ></fc-login>
+</ng-container>

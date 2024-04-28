@@ -1,0 +1,75 @@
+<div class="card">
+  <h4 class="card-header">Regisztráció</h4>
+  <div class="card-body">
+    <form #form="ngForm">
+      <div class="mb-3">
+        <input
+          type="text"
+          name="username"
+          [(ngModel)]="registeredUser.username"
+          placeholder="Felhasználónév"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="text"
+          name="firstName"
+          [(ngModel)]="registeredUser.firstname"
+          placeholder="Vezetéknév"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="text"
+          name="lastName"
+          [(ngModel)]="registeredUser.lastname"
+          placeholder="Keresztnév"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="email"
+          name="email"
+          placeholder="E-mail cím"
+          [(ngModel)]="registeredUser.email"
+        />
+      </div>
+      <div class="mb-3">
+        <input
+          type="password"
+          name="password"
+          placeholder="Jelszó"
+          [(ngModel)]="registeredUser.password"
+        />
+      </div>
+      <div>
+        <button
+          pButton
+          [disabled]="loading"
+          class="btn btn-primary"
+          (click)="register()"
+        >
+          <span
+            *ngIf="loading"
+            class="spinner-border spinner-border-sm me-1"
+          ></span>
+          Regisztráció
+        </button>
+        <button pButton class="btn btn-link" (click)="cancel()">
+          Vissza a bejelentkezéshez
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<p-toast position="center">
+  <ng-template let-message pTemplate="message">
+    <div class="flex flex-column" style="flex: 1">
+      <div class="text-center">
+        <i class="pi pi-exclamation-triangle" style="font-size: 3rem"></i>
+        <h4>{{ message.summary }}</h4>
+        <p>{{ message.detail }}</p>
+      </div>
+    </div>
+  </ng-template>
+</p-toast>
