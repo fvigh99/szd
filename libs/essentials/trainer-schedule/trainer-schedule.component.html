@@ -1,6 +1,67 @@
-<p-table
-  [value]="scheduleList | async"
-  [tableStyle]="{ 'min-width': '50rem' }"
-  styleClass="p-datatable-striped"
+<p-dialog
+  header="Órarend"
+  [resizable]="false"
+  [modal]="true"
+  [(visible)]="dialogVisible"
+  [style]="{ width: '75vw' }"
+  [contentStyle]="{ height: '300px' }"
 >
-</p-table>
+  <p-table
+    [value]="scheduleList | async"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-striped"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Hétfő</th>
+        <th>Kedd</th>
+        <th>Szerda</th>
+        <th>Csütörtök</th>
+        <th>Péntek</th>
+        <th>Szombat</th>
+        <th>Vasárnap</th>
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-schedule
+      let-editing="editing"
+      let-ri="rowIndex"
+    >
+      <tr>
+        <td *ngIf="schedule.day === 0">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 1">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 2">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 3">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 4">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 5">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+        <td *ngIf="schedule.day === 6">
+          {{ schedule.start }} - {{ schedule.end }}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <ng-template pTemplate="footer">
+    <button
+      type="button"
+      pButton
+      pRipple
+      icon="pi pi-times"
+      (click)="scheduleClosed()"
+      label="Bezárás"
+      class="p-button-text"
+    ></button>
+  </ng-template>
+</p-dialog>

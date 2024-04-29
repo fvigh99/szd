@@ -42,7 +42,7 @@
           [(ngModel)]="registeredUser.password"
         />
       </div>
-      <div>
+      <div class="pb-2">
         <button
           pButton
           [disabled]="loading"
@@ -55,7 +55,9 @@
           ></span>
           Regisztráció
         </button>
-        <button pButton class="btn btn-link" (click)="cancel()">
+      </div>
+      <div>
+        <button pButton class="btn btn-secondary" (click)="cancel()">
           Vissza a bejelentkezéshez
         </button>
       </div>

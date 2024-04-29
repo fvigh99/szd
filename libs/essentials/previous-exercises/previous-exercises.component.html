@@ -1,0 +1,144 @@
+<p-toast></p-toast>
+<div class="card">
+  <p-toolbar styleClass="mb-4 gap-2">
+    <button
+      pButton
+      pRipple
+      label="Új edzés hozzáadása"
+      icon="pi pi-plus"
+      class="p-button-success mr-2"
+      (click)="openNew()"
+    ></button>
+  </p-toolbar>
+  <p-table
+    [value]="exerciseList | async"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    styleClass="p-datatable-striped"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Időpont</th>
+        <th>Gép</th>
+        <th>Súly</th>
+        <th>Ismétlés</th>
+        <th>Intenzitás</th>
+        <th>Időtartam</th>
+      </tr>
+    </ng-template>
+    <ng-template
+      pTemplate="body"
+      let-exercise
+      let-editing="editing"
+      let-ri="rowIndex"
+    >
+      <tr>
+        <td>{{ exercise.date }}</td>
+        <td>{{ exercise.machine?.name }}</td>
+        <td>{{ exercise.weight }}</td>
+        <td>{{ exercise.count }}</td>
+        <td>{{ exercise.intesity }}</td>
+        <td>{{ exercise.duration }}</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+<form #newExerciseForm="ngForm">
+  <p-dialog
+    [(visible)]="newExerciseDialog"
+    [style]="{ width: '450px' }"
+    header="Új edzés hozzáadása"
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="machine">Használt gép</label>
+        <p-autoComplete
+          [(ngModel)]="selectedMachine"
+          [suggestions]="filteredMachines"
+          (completeMethod)="filterMachine($event)"
+          field="name"
+          [forceSelection]="true"
+        >
+        </p-autoComplete>
+      </div>
+      <div class="field">
+        <label for="weight">Súly</label>
+        <input
+          type="text"
+          id="weight"
+          name="weight"
+          pInputText
+          [(ngModel)]="newExercise.weight"
+        />
+      </div>
+      <div class="field">
+        <label for="count">Ismétlés</label>
+        <input
+          type="text"
+          pInputText
+          id="count"
+          name="count"
+          [(ngModel)]="newExercise.count"
+        />
+      </div>
+      <div class="field">
+        <label for="intensity">Intenzitás</label>
+        <input
+          type="text"
+          id="intensity"
+          name="intensity"
+          pInputText
+          [(ngModel)]="newExercise.intensity"
+        />
+      </div>
+      <div class="field">
+        <label for="intensity">Intenzitás</label>
+        <input
+          id="intensity"
+          name="intensity"
+          pInputText
+          [(ngModel)]="newExercise.intensity"
+        />
+      </div>
+      <div class="field">
+        <label for="duration">Időtartam</label>
+        <input
+          id="duration"
+          name="duration"
+          pInputText
+          [(ngModel)]="newExercise.duration"
+        />
+      </div>
+      <div class="field">
+        <label for="date">Edzés időpontja</label>
+        <p-calendar
+          name="date"
+          [(ngModel)]="newExercise.date"
+          [showIcon]="true"
+          required
+        ></p-calendar>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Vissza"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideNewDialog()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Mentés"
+        icon="pi pi-check"
+        class="p-button-text"
+        [disabled]="!newExerciseForm.valid"
+        (click)="saveNewExercise()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>
+<p-confirmDialog></p-confirmDialog>

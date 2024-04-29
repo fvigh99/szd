@@ -1,30 +1,29 @@
-<ng-container *ngIf="listView; else scheduleView">
-  <p-carousel
-    [value]="trainerList | async"
-    [numVisible]="3"
-    [numScroll]="3"
-    [circular]="false"
-  >
-    <ng-template let-trainer pTemplate="item">
-      <div
-        class="border-1 surface-border border-round m-2 text-center py-5 px-3"
-      >
-        <div class="mb-3">
-          <a (click)="imageClicked(trainer)">
-            <img
-              [src]="trainer.picture"
-              [alt]="trainer.firstname + '' + trainer.lastname"
-              class="w-6 shadow-2"
-            />
-          </a>
-        </div>
-        <div>
-          <h4 class="mb-1">{{ trainer.firstname + '' + trainer.lastname }}</h4>
-        </div>
+<p-carousel
+  [value]="trainerList | async"
+  [numVisible]="3"
+  [numScroll]="3"
+  [circular]="false"
+>
+  <ng-template let-trainer pTemplate="item">
+    <div class="border-1 surface-border border-round m-2 text-center py-5 px-3">
+      <div class="mb-3">
+        <a (click)="imageClicked(trainer)">
+          <img
+            [src]="trainer.picture"
+            [alt]="trainer.firstname + ' ' + trainer.lastname"
+            class="w-6 shadow-2"
+          />
+        </a>
       </div>
-    </ng-template>
-  </p-carousel>
+      <div>
+        <h4 class="mb-1">{{ trainer.firstname + ' ' + trainer.lastname }}</h4>
+      </div>
+    </div>
+  </ng-template>
+</p-carousel>
+<ng-container *ngIf="scheduleOpen">
+  <fc-trainer-schedule
+    [trainer]="selectedTrainer"
+    (dialogClosed)="scheduleClosed($event)"
+  ></fc-trainer-schedule>
 </ng-container>
-<ng-template #scheduleView>
-  <fc-trainer-schedule [trainer]="selectedTrainer"></fc-trainer-schedule>
-</ng-template>

@@ -17,7 +17,7 @@ export interface Achievement extends EntityWithId {
   name?: string;
   summary?: string;
   icon?: string;
-  machineId?: number;
+  machine?: Machine;
   weight?: number;
   count?: number;
   intensity?: number;
@@ -32,7 +32,7 @@ export interface Machine extends EntityWithId {
 }
 
 export interface Schedule extends EntityWithId {
-  userId: number;
+  user?: User;
   day?: number;
   start?: number;
   end?: number;
@@ -42,21 +42,22 @@ export interface Schedule extends EntityWithId {
 }
 
 export interface UserInTraining extends EntityWithId {
-  userId?: number;
-  scheduleId?: number;
+  user?: User;
+  schedule?: Schedule;
 }
 
 export interface PersonalGoal extends EntityWithId {
-  userId?: number;
+  user?: User;
 }
 
 export interface Exercise extends EntityWithId {
-  machineId?: number;
-  userId?: number;
+  machine?: Machine;
+  user?: User;
   weight?: number;
   count?: number;
   intensity?: number;
   duration?: number;
+  date?: Date;
 }
 
 export interface Pass extends EntityWithId {
@@ -72,8 +73,8 @@ export interface Pass extends EntityWithId {
 }
 
 export interface EarnedAchievement extends EntityWithId {
-  userId?: number;
-  achievementId?: number;
+  user?: User;
+  achievement?: Achievement;
   date?: Date;
 }
 

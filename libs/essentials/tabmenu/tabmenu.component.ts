@@ -7,11 +7,18 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'libs/model/FcServerModel';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
 
 @Component({
   selector: 'fc-tabmenu',
   standalone: true,
-  imports: [CommonModule, LoginComponent, TabMenuModule, FormsModule],
+  imports: [
+    CommonModule,
+    LoginComponent,
+    TabMenuModule,
+    FormsModule,
+    ButtonModule,
+  ],
   templateUrl: './tabmenu.component.html',
   styleUrl: './tabmenu.component.scss',
 })
@@ -58,6 +65,12 @@ export class TabmenuComponent implements OnInit {
         label: 'Gépek elérése',
         disabled: this.login,
         visible: this.userAccount.role !== 'EDZO',
+      },
+      {
+        title: 'previous-exercises',
+        label: 'Előző edzéseim',
+        disabled: this.login,
+        visible: this.userAccount.role === 'TAG',
       },
       {
         title: 'achievements',
@@ -107,6 +120,7 @@ export class TabmenuComponent implements OnInit {
   }
 
   public logout(): void {
+    this.router.navigate(['/page/home']);
     this.userAccount = {};
     this.accountService.logout();
     this.setMenuItems();

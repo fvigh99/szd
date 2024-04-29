@@ -1,20 +1,204 @@
-<p-carousel
-  [value]="machineList"
-  [numVisible]="3"
-  [numScroll]="3"
-  [circular]="false"
->
-  <ng-template let-product pTemplate="item">
-    <div class="border-1 surface-border border-round m-2 text-center py-5 px-3">
-      <div class="mb-3">
-        <img
-          src="https://primefaces.org/cdn/primeng/images/demo/product/{{
-            product.image
-          }}"
-          [alt]="product.name"
-          class="w-6 shadow-2"
+<div class="card">
+  <p-toast></p-toast>
+  <p-toolbar styleClass="mb-4 gap-2">
+    <button
+      *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+      pButton
+      pRipple
+      label="Új gép hozzáadása"
+      icon="pi pi-plus"
+      class="p-button-success mr-2"
+      (click)="openNew()"
+    ></button>
+  </p-toolbar>
+  <p-carousel
+    [value]="machineList | async"
+    [numVisible]="3"
+    [numScroll]="3"
+    [circular]="false"
+  >
+    <ng-template let-machine pTemplate="item">
+      <div
+        class="border-1 surface-border border-round m-2 text-center py-5 px-3"
+      >
+        <div class="mb-3">
+          <a (click)="imageClicked(machine)">
+            <img
+              [src]="machine.picture"
+              [alt]="machine.name"
+              class="w-6 shadow-2"
+            />
+          </a>
+        </div>
+        <div>
+          <h4 class="mb-1">{{ machine.name }}</h4>
+        </div>
+      </div>
+    </ng-template>
+  </p-carousel>
+</div>
+<form #newMachineForm="ngForm">
+  <p-dialog
+    [(visible)]="newMachineDialog"
+    [style]="{ width: '450px' }"
+    header="Új gép hozzáadása"
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="name">Megnevezés</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          name="name"
+          [(ngModel)]="newMachine.name"
+          required
+          autofocus
         />
       </div>
-    </div>
-  </ng-template>
-</p-carousel>
+      <div class="field">
+        <label for="summary">Leírás</label>
+        <textarea
+          id="summary"
+          name="summary"
+          pInputTextarea
+          [(ngModel)]="newMachine.summary"
+          required
+          rows="3"
+          cols="20"
+        ></textarea>
+      </div>
+      <div class="field">
+        <label for="type">Típus</label>
+        <input
+          type="text"
+          pInputText
+          id="type"
+          name="type"
+          [(ngModel)]="newMachine.type"
+          required
+        />
+      </div>
+      <div class="field">
+        <label for="picture">Kép linkje</label>
+        <textarea
+          id="picture"
+          name="picture"
+          pInputTextarea
+          [(ngModel)]="newMachine.picture"
+          required
+          rows="3"
+          cols="20"
+        ></textarea>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Vissza"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideNewDialog()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Mentés"
+        icon="pi pi-check"
+        class="p-button-text"
+        [disabled]="!newMachineForm.valid"
+        (click)="saveNewMachine()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>
+
+<form #editMachineForm="ngForm">
+  <p-dialog
+    [(visible)]="editMachineDialog"
+    [style]="{ width: '450px' }"
+    header="Gép módosítása"
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="name">Megnevezés</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          name="name"
+          [(ngModel)]="editedMachine.name"
+          required
+          autofocus
+        />
+      </div>
+      <div class="field">
+        <label for="summary">Leírás</label>
+        <textarea
+          id="summary"
+          name="summary"
+          pInputTextarea
+          [(ngModel)]="editedMachine.summary"
+          required
+          rows="3"
+          cols="20"
+        ></textarea>
+      </div>
+      <div class="field">
+        <label for="type">Típus</label>
+        <input
+          type="text"
+          pInputText
+          id="type"
+          name="type"
+          [(ngModel)]="editedMachine.type"
+          required
+        />
+      </div>
+      <div class="field">
+        <label for="picture">Kép linkje</label>
+        <textarea
+          id="picture"
+          name="picture"
+          pInputTextarea
+          [(ngModel)]="editedMachine.picture"
+          required
+          rows="3"
+          cols="20"
+        ></textarea>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Vissza"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideEditedDialog()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Mentés"
+        icon="pi pi-check"
+        class="p-button-text"
+        [disabled]="!editMachineForm.valid"
+        (click)="saveEditedMachine()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Törlés"
+        icon="pi pi-trash"
+        class="p-button-text"
+        (click)="deleteMachine()"
+      ></button> </ng-template
+  ></p-dialog>
+</form>
+<p-confirmDialog></p-confirmDialog>

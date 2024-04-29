@@ -59,20 +59,14 @@ export class LoginComponent implements OnInit {
           this.messageService.add({
             summary: 'Siker!',
             severity: 'success',
-            detail: 'Sikeres bejelentkezés! Átirányítunk a főoldalra.',
+            detail: 'Sikeres bejelentkezés! Átirányítunk az előző oldalra.',
           });
           setTimeout(() => {
             this.loginStatusChanged.emit(this.loggedInUser);
-          }, 3000);
+          }, 1000);
         }
       })
       .add(() => {});
-  }
-
-  public logout(): void {
-    this.accountService.logout();
-    this.loginStatusChanged.emit(null);
-    this.loggedInUser = null;
   }
 
   public navigateToRegister(): void {

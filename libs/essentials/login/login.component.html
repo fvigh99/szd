@@ -26,14 +26,23 @@
             Bejelentkezés
           </button>
         </div>
-        <!-- <button class="ml-4" pButton (click)="navigateToForgottenPW()">
-          Elfelejtett jelszó?
-        </button> -->
         <div class="pb-2">
-          <button pButton pRipple (click)="navigateToRegister()">
+          <button
+            class="btn btn-secondary"
+            pButton
+            pRipple
+            (click)="navigateToRegister()"
+          >
             Regisztráció
           </button>
-          <button pButton pRipple (click)="navigateToHomePage()">Vissza</button>
+          <button
+            class="btn btn-secondary mx-2"
+            pButton
+            pRipple
+            (click)="navigateToHomePage()"
+          >
+            Vissza
+          </button>
         </div>
       </form>
     </div>
@@ -42,13 +51,6 @@
 <ng-template #registerInProgress>
   <fc-register (backToLogin)="registerOver($event)"></fc-register>
 </ng-template>
-
-<!-- <ng-container *ngIf="loggedInUser">
-  <span class="mx-4 pb-2">Bejelentkezve, mint {{ loggedInUser.username }}</span>
-  <div class="mx-4">
-    <button pButton (click)="logout()">Kijelentkezés</button>
-  </div>
-</ng-container> -->
 
 <p-toast position="center">
   <ng-template let-message pTemplate="message">

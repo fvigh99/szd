@@ -21,7 +21,7 @@ import { TrainerScheduleComponent } from '../trainer-schedule/trainer-schedule.c
 })
 export class TrainerListComponent implements OnInit {
   public trainerList: Observable<User[]>;
-  public listView = true;
+  public scheduleOpen = false;
   public selectedTrainer: User;
   constructor(private userService: UserService) {}
   ngOnInit(): void {
@@ -30,6 +30,10 @@ export class TrainerListComponent implements OnInit {
 
   public imageClicked(value: User) {
     this.selectedTrainer = value;
-    this.listView = false;
+    this.scheduleOpen = true;
+  }
+
+  public scheduleClosed(value: boolean) {
+    this.scheduleOpen = value;
   }
 }
