@@ -19,10 +19,10 @@
       <tr>
         <th>Időpont</th>
         <th>Gép</th>
-        <th>Súly</th>
+        <th>Súly (kg)</th>
         <th>Ismétlés</th>
-        <th>Intenzitás</th>
-        <th>Időtartam</th>
+        <th>Intenzitás (1-10)</th>
+        <th>Időtartam (perc)</th>
       </tr>
     </ng-template>
     <ng-template
@@ -57,58 +57,47 @@
           [(ngModel)]="selectedMachine"
           [suggestions]="filteredMachines"
           (completeMethod)="filterMachine($event)"
+          name="machine"
           field="name"
           [forceSelection]="true"
         >
         </p-autoComplete>
       </div>
       <div class="field">
-        <label for="weight">Súly</label>
-        <input
+        <label for="weight">Súly (kg)</label>
+        <p-inputNumber
           type="text"
           id="weight"
           name="weight"
-          pInputText
           [(ngModel)]="newExercise.weight"
-        />
+        ></p-inputNumber>
       </div>
       <div class="field">
         <label for="count">Ismétlés</label>
-        <input
+        <p-inputNumber
           type="text"
-          pInputText
           id="count"
           name="count"
           [(ngModel)]="newExercise.count"
-        />
+        ></p-inputNumber>
       </div>
       <div class="field">
-        <label for="intensity">Intenzitás</label>
-        <input
-          type="text"
+        <label for="intensity">Intenzitás (1-10)</label>
+        <p-inputNumber
           id="intensity"
           name="intensity"
-          pInputText
+          [min]="1"
+          [max]="10"
           [(ngModel)]="newExercise.intensity"
-        />
+        ></p-inputNumber>
       </div>
       <div class="field">
-        <label for="intensity">Intenzitás</label>
-        <input
-          id="intensity"
-          name="intensity"
-          pInputText
-          [(ngModel)]="newExercise.intensity"
-        />
-      </div>
-      <div class="field">
-        <label for="duration">Időtartam</label>
-        <input
+        <label for="duration">Időtartam (perc)</label>
+        <p-inputNumber
           id="duration"
           name="duration"
-          pInputText
           [(ngModel)]="newExercise.duration"
-        />
+        ></p-inputNumber>
       </div>
       <div class="field">
         <label for="date">Edzés időpontja</label>

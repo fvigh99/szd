@@ -120,7 +120,11 @@
   <p-dialog
     [(visible)]="editMachineDialog"
     [style]="{ width: '450px' }"
-    header="Gép módosítása"
+    [header]="
+      loggedInUser && loggedInUser.role === 'ADMIN'
+        ? 'Gép módosítása'
+        : 'Gép megtekintése'
+    "
     [modal]="true"
     styleClass="p-fluid"
   >
@@ -134,7 +138,8 @@
           name="name"
           [(ngModel)]="editedMachine.name"
           required
-          autofocus
+          [autofocus]="loggedInUser && loggedInUser.role === 'ADMIN'"
+          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
         />
       </div>
       <div class="field">
@@ -147,6 +152,7 @@
           required
           rows="3"
           cols="20"
+          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
         ></textarea>
       </div>
       <div class="field">
@@ -158,6 +164,7 @@
           name="type"
           [(ngModel)]="editedMachine.type"
           required
+          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
         />
       </div>
       <div class="field">
@@ -170,6 +177,7 @@
           required
           rows="3"
           cols="20"
+          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
         ></textarea>
       </div>
     </ng-template>
@@ -183,6 +191,7 @@
         (click)="hideEditedDialog()"
       ></button>
       <button
+        *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
         pButton
         pRipple
         label="Mentés"
@@ -192,6 +201,7 @@
         (click)="saveEditedMachine()"
       ></button>
       <button
+        *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
         pButton
         pRipple
         label="Törlés"
