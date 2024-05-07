@@ -29,6 +29,7 @@ export class LoginComponent implements OnInit {
   public password: string;
   public loggedInUser: User | null = null;
   public register: boolean = false;
+  public loading = false;
   @Output() public loginStatusChanged: EventEmitter<User | null> =
     new EventEmitter();
   @Output() public loginOver: EventEmitter<boolean> = new EventEmitter();
@@ -61,9 +62,11 @@ export class LoginComponent implements OnInit {
             severity: 'success',
             detail: 'Sikeres bejelentkezés! Átirányítunk az előző oldalra.',
           });
+          this.loading = true;
           setTimeout(() => {
+            this.loading = false;
             this.loginStatusChanged.emit(this.loggedInUser);
-          }, 1000);
+          }, 2000);
         }
       })
       .add(() => {});
@@ -79,6 +82,12 @@ export class LoginComponent implements OnInit {
 
   public registerOver(value: boolean): void {
     this.register = value;
+  }
+
+  public successfulRegister(value: boolean) {
+    if (value) {
+      this.navigateToHomePage();
+    }
   }
 
   public navigateToHomePage(): void {

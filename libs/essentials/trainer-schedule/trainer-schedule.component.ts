@@ -8,6 +8,10 @@ import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
 import { AccountService } from 'libs/data-access/account/account.service';
+import { ToolbarModule } from 'primeng/toolbar';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'fc-trainer-schedule',
@@ -20,6 +24,10 @@ import { AccountService } from 'libs/data-access/account/account.service';
     DialogModule,
     ButtonModule,
     NgIf,
+    ToolbarModule,
+    ToastModule,
+    DialogModule,
+    DropdownModule,
   ],
   templateUrl: './trainer-schedule.component.html',
   styleUrl: './trainer-schedule.component.scss',
@@ -30,18 +38,39 @@ export class TrainerScheduleComponent implements OnInit {
   public scheduleList: Observable<Schedule>;
   public dialogVisible = true;
   public loggedInUser: User;
+  public newScheduleDialog = false;
+  public newSchedule: Schedule;
+  public dayList: Array<{ id: number; day: string }> = [
+    { id: 0, day: 'Hétfő' },
+    { id: 1, day: 'Kedd' },
+    { id: 2, day: 'Szerda' },
+    { id: 3, day: 'Csütörtök' },
+    { id: 4, day: 'Péntek' },
+    { id: 5, day: 'Szombat' },
+    { id: 6, day: 'Vasárnap' },
+  ];
   constructor(
     private scheduleService: ScheduleService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
-    console.log(this.trainer.id);
-    this.loggedInUser = this.accountService.userValue.user_object;
+    this.loggedInUser = this.accountService.userValue?.user_object;
     this.scheduleList = this.scheduleService.getById(this.trainer.id);
   }
 
   public scheduleClosed() {
     this.dialogClosed.emit(false);
   }
+
+  public openNew() {
+    this.newScheduleDialog = true;
+  }
+
+  public hideEditedDialog() {
+    this.newScheduleDialog = false;
+  }
+
+  public saveSchedule() {}
 }

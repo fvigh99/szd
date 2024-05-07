@@ -49,7 +49,7 @@ export class PreviousExercisesComponent implements OnInit {
   public newExerciseDialog = false;
   public machineList: any;
   public selectedMachine: Machine;
-  public filteredMachines: any[] | undefined;
+  public filteredMachines: Machine[] | undefined;
   public loggedInUser: User;
   constructor(
     private exerciseService: ExerciseService,
@@ -73,11 +73,11 @@ export class PreviousExercisesComponent implements OnInit {
   }
 
   public filterMachine(event: AutoCompleteCompleteEvent) {
-    let filtered: any[] = [];
+    let filtered: Machine[] = [];
     let query = event.query;
 
-    for (let i = 0; i < (this.machineList as any[]).length; i++) {
-      let machine = (this.machineList as any[])[i];
+    for (let i = 0; i < (this.machineList as Machine[]).length; i++) {
+      let machine = (this.machineList as Machine[])[i];
       if (machine.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
         filtered.push(machine);
       }

@@ -1,0 +1,337 @@
+<div class="pl-2 pb-3">
+  <h1>Bérleteink</h1>
+</div>
+
+<div class="pl-2 pb-3">
+  <span> Ezen az oldalon tekintheti meg elérhető bérleteinket! </span>
+</div>
+
+<div class="card">
+  <form #form="ngForm">
+    <p-toast></p-toast>
+    <p-toolbar
+      styleClass="mb-4 gap-2"
+      *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+    >
+      <button
+        pButton
+        pRipple
+        label="Új bérlet hozzáadása"
+        icon="pi pi-plus"
+        class="p-button-success mr-2"
+        (click)="openNew()"
+      ></button>
+    </p-toolbar>
+    <p-table
+      [value]="passList | async"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      styleClass="p-datatable-striped"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Megnevezés</th>
+          <th>Ár</th>
+          <th>Napi belépési limit</th>
+          <th>Heti belépési limit</th>
+          <th>Sauna</th>
+          <th>Kickbox</th>
+          <th>Spinracing</th>
+          <th>Pilates</th>
+          <th>Yoga</th>
+          <th></th>
+        </tr>
+      </ng-template>
+      <ng-template
+        pTemplate="body"
+        let-pass
+        let-editing="editing"
+        let-ri="rowIndex"
+      >
+        <tr [pEditableRow]="pass">
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <input
+                  pInputText
+                  type="text"
+                  name="type"
+                  [(ngModel)]="pass.type"
+                />
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{ pass.type }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-inputNumber
+                  [(ngModel)]="pass.price"
+                  mode="currency"
+                  currency="HUF"
+                  locale="hu-HU"
+                  name="price"
+                />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <span> {{ pass.price }} HUF </span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-inputNumber
+                  [(ngModel)]="pass.dailyEntryCount"
+                  name="dailyEntryCount"
+                  [min]="0"
+                  [max]="1"
+                />
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{
+                  pass.dailyEntryCount === 0
+                    ? 'KORLÁTLAN'
+                    : pass.dailyEntryCount
+                }}
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-inputNumber
+                  [(ngModel)]="pass.entryPerWeek"
+                  name="entryPerWeek"
+                  [min]="0"
+                  [max]="7"
+                />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <span>
+                  {{ pass.entryPerWeek === 0 ? 'KORÁTLAN' : pass.entryPerWeek }}
+                </span>
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="pass.sauna" name="sauna" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <p-checkbox
+                  [(ngModel)]="pass.sauna"
+                  name="sauna"
+                  [disabled]="true"
+                />
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="pass.kickbox" name="kickbox" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <p-checkbox
+                  [(ngModel)]="pass.kickbox"
+                  name="kickbox"
+                  [disabled]="true"
+                />
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="pass.spinracing" name="spinracing" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <p-checkbox
+                  [(ngModel)]="pass.spinracing"
+                  name="spinracing"
+                  [disabled]="true"
+                />
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="pass.pilates" name="pilates" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <p-checkbox
+                  [(ngModel)]="pass.pilates"
+                  name="pilates"
+                  [disabled]="true"
+                />
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-checkbox [(ngModel)]="pass.yoga" name="yoga" />
+              </ng-template>
+              <ng-template pTemplate="output">
+                <p-checkbox
+                  [(ngModel)]="pass.yoga"
+                  name="yoga"
+                  [disabled]="true"
+                />
+              </ng-template>
+            </p-cellEditor>
+          </td>
+
+          <td *ngIf="loggedInUser.role === 'ADMIN'">
+            <div class="flex align-items-center justify-content-center gap-2">
+              <button
+                *ngIf="!editing"
+                pButton
+                pRipple
+                type="button"
+                pInitEditableRow
+                icon="pi pi-pencil"
+                (click)="onRowEditInit(pass)"
+                class="p-button-rounded p-button-text"
+                [disabled]="editing"
+              ></button>
+              <button
+                *ngIf="editing"
+                pButton
+                pRipple
+                type="button"
+                pSaveEditableRow
+                icon="pi pi-check"
+                (click)="onRowEditSave(pass)"
+                class="p-button-rounded p-button-text p-button-success mr-2"
+              ></button>
+              <button
+                *ngIf="editing"
+                pButton
+                pRipple
+                type="button"
+                pCancelEditableRow
+                icon="pi pi-times"
+                (click)="onRowEditCancel(pass, ri)"
+                class="p-button-rounded p-button-text p-button-danger"
+              ></button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </form>
+</div>
+
+<form #newPassForm="ngForm">
+  <p-dialog
+    [(visible)]="newPassDialog"
+    [style]="{ width: '450px' }"
+    header="Új bérlet felvitele"
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="type">Megnevezés</label>
+        <input
+          type="text"
+          pInputText
+          id="type"
+          name="type"
+          [(ngModel)]="newPass.type"
+          required
+          autofocus
+        />
+      </div>
+      <div class="field">
+        <label for="price">Ár</label>
+        <p-inputNumber
+          [(ngModel)]="newPass.price"
+          mode="currency"
+          currency="HUF"
+          locale="hu-HU"
+          name="price"
+        />
+      </div>
+      <div class="field">
+        <label for="dailyEntryCount">Napi belépési limit</label>
+        <p-inputNumber
+          name="dailyEntryCount"
+          [(ngModel)]="newPass.dailyEntryCount"
+          required
+          [min]="0"
+          [max]="1"
+        />
+      </div>
+      <div class="field">
+        <label for="entryPerWeek">Heti belépési limit</label>
+        <p-inputNumber
+          name="entryPerWeek"
+          [(ngModel)]="newPass.entryPerWeek"
+          required
+          [min]="0"
+          [max]="1"
+        />
+      </div>
+      <div class="field">
+        <p-checkbox [(ngModel)]="newPass.sauna" name="sauna" label="Szauna" />
+      </div>
+      <div class="field">
+        <p-checkbox
+          [(ngModel)]="newPass.kickbox"
+          name="kickbox"
+          label="Kickbox"
+        />
+      </div>
+      <div class="field">
+        <p-checkbox
+          [(ngModel)]="newPass.spinracing"
+          name="spinracing"
+          label="Spinracing"
+        />
+      </div>
+      <div class="field">
+        <p-checkbox
+          [(ngModel)]="newPass.pilates"
+          name="pilates"
+          label="Pilates"
+        />
+      </div>
+      <div class="field">
+        <p-checkbox [(ngModel)]="newPass.yoga" name="yoga" label="Yoga" />
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Bezárás"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideNewDialog()"
+      ></button>
+      <button
+        pButton
+        pRipple
+        label="Mentés"
+        icon="pi pi-check"
+        class="p-button-text"
+        [disabled]="!newPassForm.valid"
+        (click)="saveNewPass()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>

@@ -67,6 +67,7 @@
                   type="text"
                   name="username"
                   [(ngModel)]="user.username"
+                  [disabled]="true"
                 />
               </ng-template>
               <ng-template pTemplate="output">
@@ -122,12 +123,12 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input
-                  pInputText
-                  type="text"
-                  name="role"
+                <p-dropdown
+                  [options]="roleList"
                   [(ngModel)]="user.role"
-                />
+                  name="role"
+                >
+                </p-dropdown>
               </ng-template>
               <ng-template pTemplate="output">
                 {{ user.role }}
@@ -136,28 +137,33 @@
           </td>
           <td>
             <p-cellEditor>
-              <ng-template pTemplate="input">
-                <input
-                  pInputText
-                  type="text"
-                  name="pass"
-                  [(ngModel)]="user.pass"
-                />
-              </ng-template>
-              <ng-template pTemplate="output">
-                {{ user.pass ?? 'Nincs' }}
-              </ng-template>
+              <ng-container *ngIf="user.role !== 'EDZO'">
+                <ng-template pTemplate="input">
+                  <input
+                    pInputText
+                    type="text"
+                    name="pass"
+                    [(ngModel)]="user.pass"
+                  />
+                </ng-template>
+                <ng-template pTemplate="output">
+                  {{ user.pass ?? 'Nincs' }}
+                </ng-template>
+              </ng-container>
             </p-cellEditor>
           </td>
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <input
-                  pInputText
+                <textarea
+                  pTextArea
                   type="text"
                   name="picture"
                   [(ngModel)]="user.picture"
-                />
+                  pInputTextarea
+                  rows="3"
+                  cols="20"
+                ></textarea>
               </ng-template>
               <ng-template pTemplate="output">
                 {{ user.picture ?? 'Nincs' }}
@@ -165,7 +171,7 @@
             </p-cellEditor>
           </td>
           <td>
-            {{ user.crd }}
+            {{ user.crd | date : 'yyyy/MM/dd' }}
           </td>
           <td>
             <div class="flex align-items-center justify-content-center gap-2">
@@ -178,7 +184,7 @@
                 icon="pi pi-pencil"
                 (click)="onRowEditInit(user)"
                 class="p-button-rounded p-button-text"
-                [disabled]="editing"
+                [disabled]="rowEditing"
               ></button>
               <button
                 *ngIf="editing"

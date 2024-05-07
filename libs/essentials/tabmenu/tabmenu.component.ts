@@ -90,6 +90,11 @@ export class TabmenuComponent implements OnInit {
         disabled: this.login,
         visible: this.userAccount.role === 'EDZO',
       },
+      {
+        title: 'pass-list',
+        label: 'Bérletek',
+        disabled: this.login,
+      },
     ];
   }
 

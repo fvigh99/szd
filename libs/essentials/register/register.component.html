@@ -57,7 +57,12 @@
         </button>
       </div>
       <div>
-        <button pButton class="btn btn-secondary" (click)="cancel()">
+        <button
+          pButton
+          class="btn btn-secondary"
+          (click)="cancel()"
+          [disabled]="loading"
+        >
           Vissza a bejelentkezéshez
         </button>
       </div>

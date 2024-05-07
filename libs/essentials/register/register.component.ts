@@ -20,6 +20,8 @@ export class RegisterComponent {
   public registeredUser: User = {};
   public loading = false;
   @Output() public backToLogin: EventEmitter<boolean> = new EventEmitter();
+  @Output() public successfulRegister: EventEmitter<boolean> =
+    new EventEmitter();
   constructor(
     private accountService: AccountService,
     private router: Router,
@@ -38,6 +40,11 @@ export class RegisterComponent {
               summary: 'Siker!',
               detail: 'Sikeres regisztráció!',
             });
+            this.loading = true;
+            setTimeout(() => {
+              this.loading = false;
+              this.successfulRegister.emit(true);
+            }, 2000);
           } else {
             this.messageService.add({
               severity: 'error',

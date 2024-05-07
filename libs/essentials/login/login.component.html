@@ -10,6 +10,7 @@
             name="username"
             [placeholder]="'Felhasználónév'"
             [(ngModel)]="username"
+            autofocus
           />
         </div>
         <div class="pb-2">
@@ -22,7 +23,17 @@
           />
         </div>
         <div class="pb-2">
-          <button class="btn btn-primary" pButton pRipple (click)="login()">
+          <button
+            class="btn btn-primary"
+            pButton
+            pRipple
+            (click)="login()"
+            [disabled]="loading"
+          >
+            <span
+              *ngIf="loading"
+              class="spinner-border spinner-border-sm me-1"
+            ></span>
             Bejelentkezés
           </button>
         </div>
@@ -32,6 +43,7 @@
             pButton
             pRipple
             (click)="navigateToRegister()"
+            [disabled]="loading"
           >
             Regisztráció
           </button>
@@ -40,6 +52,7 @@
             pButton
             pRipple
             (click)="navigateToHomePage()"
+            [disabled]="loading"
           >
             Vissza
           </button>
@@ -49,7 +62,10 @@
   </div>
 </ng-container>
 <ng-template #registerInProgress>
-  <fc-register (backToLogin)="registerOver($event)"></fc-register>
+  <fc-register
+    (backToLogin)="registerOver($event)"
+    (successfulRegister)="successfulRegister($event)"
+  ></fc-register>
 </ng-template>
 
 <p-toast position="center">

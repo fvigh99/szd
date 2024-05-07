@@ -5,6 +5,7 @@ import { MachineListComponent } from 'libs/essentials/machine-list/machine-list.
 import { AchievementsComponent } from 'libs/essentials/achievements/achievements.component';
 import { UserListComponent } from 'libs/essentials/user-list/user-list.component';
 import { PreviousExercisesComponent } from 'libs/essentials/previous-exercises/previous-exercises.component';
+import { PassListComponent } from 'libs/essentials/pass-list/pass-list.component';
 
 export const routes: Routes = [
   { path: 'page/home', component: HomeComponent },
@@ -13,4 +14,5 @@ export const routes: Routes = [
   { path: 'page/achievements', component: AchievementsComponent },
   { path: 'page/user-list', component: UserListComponent },
   { path: 'page/previous-exercises', component: PreviousExercisesComponent },
+  { path: 'page/pass-list', component: PassListComponent },
 ];

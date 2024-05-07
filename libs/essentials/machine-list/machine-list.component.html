@@ -1,8 +1,21 @@
+<div class="pl-2 pb-3">
+  <h1>Gépeink</h1>
+</div>
+
+<div class="pl-2 pb-3">
+  <span>
+    Ezen az oldalon érheti el a termünkben megtalálható gépeket. A képekre
+    kattintva részletes információt kaphat róluk!
+  </span>
+</div>
+
 <div class="card">
   <p-toast></p-toast>
-  <p-toolbar styleClass="mb-4 gap-2">
+  <p-toolbar
+    styleClass="mb-4 gap-2"
+    *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+  >
     <button
-      *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
       pButton
       pRipple
       label="Új gép hozzáadása"
@@ -63,9 +76,9 @@
         <textarea
           id="summary"
           name="summary"
-          pInputTextarea
           [(ngModel)]="newMachine.summary"
           required
+          pInputTextarea
           rows="3"
           cols="20"
         ></textarea>
@@ -81,24 +94,26 @@
           required
         />
       </div>
-      <div class="field">
-        <label for="picture">Kép linkje</label>
-        <textarea
-          id="picture"
-          name="picture"
-          pInputTextarea
-          [(ngModel)]="newMachine.picture"
-          required
-          rows="3"
-          cols="20"
-        ></textarea>
-      </div>
+      <ng-container *ngIf="loggedInUser.role === 'ADMIN'">
+        <div class="field">
+          <label for="picture">Kép linkje</label>
+          <textarea
+            id="picture"
+            name="picture"
+            pInputTextarea
+            [(ngModel)]="newMachine.picture"
+            required
+            rows="3"
+            cols="20"
+          ></textarea>
+        </div>
+      </ng-container>
     </ng-template>
     <ng-template pTemplate="footer">
       <button
         pButton
         pRipple
-        label="Vissza"
+        label="Bezárás"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideNewDialog()"
@@ -185,7 +200,7 @@
       <button
         pButton
         pRipple
-        label="Vissza"
+        label="Bezárás"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideEditedDialog()"
@@ -208,7 +223,8 @@
         icon="pi pi-trash"
         class="p-button-text"
         (click)="deleteMachine()"
-      ></button> </ng-template
-  ></p-dialog>
+      ></button>
+    </ng-template>
+  </p-dialog>
 </form>
 <p-confirmDialog></p-confirmDialog>
