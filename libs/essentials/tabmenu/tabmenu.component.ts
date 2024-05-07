@@ -60,13 +60,13 @@ export class TabmenuComponent implements OnInit {
       },
       {
         title: 'trainer-list',
-        label: 'Edzők elérése',
+        label: 'Edzők',
         disabled: this.login || this.loading,
         visible: this.userAccount.role !== 'EDZO',
       },
       {
         title: 'machine-list',
-        label: 'Gépek elérése',
+        label: 'Gépek',
         disabled: this.login || this.loading,
         visible: this.userAccount.role !== 'EDZO',
       },
@@ -78,7 +78,7 @@ export class TabmenuComponent implements OnInit {
       },
       {
         title: 'achievements',
-        label: 'Teljesítmények',
+        label: 'Teljesítményeim',
         disabled: this.login || this.loading,
         visible: this.userAccount.role === 'TAG',
       },
