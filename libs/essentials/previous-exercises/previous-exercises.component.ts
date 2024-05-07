@@ -67,9 +67,6 @@ export class PreviousExercisesComponent implements OnInit {
 
   public fetchData() {
     this.exerciseList = this.exerciseService.fetch();
-    this.exerciseList.subscribe((result) => {
-      console.log(result);
-    });
   }
 
   public filterMachine(event: AutoCompleteCompleteEvent) {

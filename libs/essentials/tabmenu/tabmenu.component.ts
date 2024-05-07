@@ -104,7 +104,6 @@ export class TabmenuComponent implements OnInit {
 
   public checkLoginStatus(value: User | null) {
     this.userAccount = value;
-    console.log(this.userAccount);
     if (value) {
       this.login = false;
       this.loginInProgress.emit(false);

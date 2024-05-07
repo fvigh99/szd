@@ -5,15 +5,17 @@ import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
 import { FormsModule } from '@angular/forms';
 import { PassService } from 'libs/data-access/pass/pass.service';
-import { Observable } from 'rxjs';
+import { Observable, map, of, switchMap, tap } from 'rxjs';
 import { Pass, User } from 'libs/model/FcServerModel';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
+import { UserService } from 'libs/data-access/user/user.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
 
 @Component({
   selector: 'fc-pass-list',
@@ -30,19 +32,22 @@ import { InputTextModule } from 'primeng/inputtext';
     CheckboxModule,
     InputNumberModule,
     InputTextModule,
+    ConfirmDialogModule,
   ],
   templateUrl: './pass-list.component.html',
   styleUrl: './pass-list.component.scss',
 })
 export class PassListComponent implements OnInit {
   public passList: Observable<Pass>;
-  public loggedInUser: User | null;
+  public loggedInUser: User;
   public newPassDialog = false;
   public newPass: Pass;
   constructor(
     private passService: PassService,
     private accountService: AccountService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private userService: UserService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
@@ -96,6 +101,65 @@ export class PassListComponent implements OnInit {
         });
         this.newPass = {};
       }
+    });
+  }
+
+  public buyPass(pass: Pass) {
+    this.confirmationService.confirm({
+      message: 'Biztosan meg szeretné vásárolni a bérletet?',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        let userWithPass: User;
+        this.userService
+          .getById(this.loggedInUser.id)
+          .pipe(
+            map((user) => {
+              return user.pass ? null : user;
+            }),
+            switchMap((user) => {
+              if (user) {
+                Object.assign(userWithPass, user);
+                userWithPass.pass = pass;
+                return this.userService.save(userWithPass);
+              } else {
+                let returnedValue;
+                this.confirmationService.confirm({
+                  message: 'Van érvényes bérlete! Szeretné lecserélni?',
+                  header: 'Figyelmeztetés',
+                  icon: 'pi pi-exclamation-triangle',
+                  acceptLabel: 'Igen',
+                  rejectLabel: 'Nem',
+                  accept: () => {
+                    returnedValue = user;
+                  },
+                  reject: () => {
+                    returnedValue = of(null);
+                  },
+                });
+                return returnedValue;
+              }
+            })
+          )
+          .subscribe((result) => {
+            if (result) {
+              this.messageService.add({
+                severity: 'success',
+                detail: 'Siker!',
+                summary: 'Sikeres vásárlás!',
+              });
+              this.fetchData();
+            } else {
+              this.messageService.add({
+                severity: 'error',
+                detail: 'Hiba!',
+                summary: 'Sikertelen vásárlás! Már van aktív bérlete.',
+              });
+            }
+          });
+      },
     });
   }
 }

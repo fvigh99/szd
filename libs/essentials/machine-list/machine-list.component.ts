@@ -53,7 +53,6 @@ export class MachineListComponent implements OnInit {
   ngOnInit(): void {
     this.fetchData();
     this.loggedInUser = this.accountService.userValue?.user_object;
-    console.log(this.loggedInUser);
   }
 
   public fetchData() {

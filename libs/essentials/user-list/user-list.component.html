@@ -139,15 +139,18 @@
             <p-cellEditor>
               <ng-container *ngIf="user.role !== 'EDZO'">
                 <ng-template pTemplate="input">
-                  <input
-                    pInputText
-                    type="text"
-                    name="pass"
+                  <p-autoComplete
                     [(ngModel)]="user.pass"
-                  />
+                    [suggestions]="filteredPasses"
+                    (completeMethod)="filterPass($event)"
+                    name="pass"
+                    field="type"
+                    [forceSelection]="true"
+                  >
+                  </p-autoComplete>
                 </ng-template>
                 <ng-template pTemplate="output">
-                  {{ user.pass ?? 'Nincs' }}
+                  {{ user.pass?.type ?? 'Nincs' }}
                 </ng-template>
               </ng-container>
             </p-cellEditor>

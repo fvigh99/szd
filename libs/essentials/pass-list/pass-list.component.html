@@ -26,6 +26,8 @@
       [value]="passList | async"
       [tableStyle]="{ 'min-width': '50rem' }"
       styleClass="p-datatable-striped"
+      editMode="row"
+      dataKey="id"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -33,7 +35,7 @@
           <th>Ár</th>
           <th>Napi belépési limit</th>
           <th>Heti belépési limit</th>
-          <th>Sauna</th>
+          <th>Szauna</th>
           <th>Kickbox</th>
           <th>Spinracing</th>
           <th>Pilates</th>
@@ -122,14 +124,19 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-checkbox [(ngModel)]="pass.sauna" name="sauna" />
+                <p-checkbox
+                  [(ngModel)]="pass.sauna"
+                  name="sauna"
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
                 <p-checkbox
                   [(ngModel)]="pass.sauna"
                   name="sauna"
                   [disabled]="true"
-                />
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -137,14 +144,19 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-checkbox [(ngModel)]="pass.kickbox" name="kickbox" />
+                <p-checkbox
+                  [(ngModel)]="pass.kickbox"
+                  name="kickbox"
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
                 <p-checkbox
                   [(ngModel)]="pass.kickbox"
                   name="kickbox"
                   [disabled]="true"
-                />
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -152,14 +164,19 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-checkbox [(ngModel)]="pass.spinracing" name="spinracing" />
+                <p-checkbox
+                  [(ngModel)]="pass.spinracing"
+                  name="spinracing"
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
                 <p-checkbox
                   [(ngModel)]="pass.spinracing"
                   name="spinracing"
                   [disabled]="true"
-                />
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -167,14 +184,19 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-checkbox [(ngModel)]="pass.pilates" name="pilates" />
+                <p-checkbox
+                  [(ngModel)]="pass.pilates"
+                  name="pilates"
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
                 <p-checkbox
                   [(ngModel)]="pass.pilates"
                   name="pilates"
                   [disabled]="true"
-                />
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -182,19 +204,30 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <p-checkbox [(ngModel)]="pass.yoga" name="yoga" />
+                <p-checkbox
+                  [(ngModel)]="pass.yoga"
+                  name="yoga"
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
                 <p-checkbox
                   [(ngModel)]="pass.yoga"
                   name="yoga"
                   [disabled]="true"
-                />
+                  [binary]="true"
+                ></p-checkbox>
               </ng-template>
             </p-cellEditor>
           </td>
 
-          <td *ngIf="loggedInUser.role === 'ADMIN'">
+          <td>
+            <ng-container *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
+              <button pButton (click)="buyPass(pass)">Vásárlás</button>
+            </ng-container>
+          </td>
+
+          <td *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'">
             <div class="flex align-items-center justify-content-center gap-2">
               <button
                 *ngIf="!editing"
@@ -287,13 +320,19 @@
         />
       </div>
       <div class="field">
-        <p-checkbox [(ngModel)]="newPass.sauna" name="sauna" label="Szauna" />
+        <p-checkbox
+          [(ngModel)]="newPass.sauna"
+          name="sauna"
+          label="Szauna"
+          [binary]="true"
+        />
       </div>
       <div class="field">
         <p-checkbox
           [(ngModel)]="newPass.kickbox"
           name="kickbox"
           label="Kickbox"
+          [binary]="true"
         />
       </div>
       <div class="field">
@@ -301,6 +340,7 @@
           [(ngModel)]="newPass.spinracing"
           name="spinracing"
           label="Spinracing"
+          [binary]="true"
         />
       </div>
       <div class="field">
@@ -308,10 +348,16 @@
           [(ngModel)]="newPass.pilates"
           name="pilates"
           label="Pilates"
+          [binary]="true"
         />
       </div>
       <div class="field">
-        <p-checkbox [(ngModel)]="newPass.yoga" name="yoga" label="Yoga" />
+        <p-checkbox
+          [(ngModel)]="newPass.yoga"
+          name="yoga"
+          label="Yoga"
+          [binary]="true"
+        />
       </div>
     </ng-template>
     <ng-template pTemplate="footer">
