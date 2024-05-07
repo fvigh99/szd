@@ -2,12 +2,13 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
 import { TabMenuModule } from 'primeng/tabmenu';
-import { MenuItem } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'libs/model/FcServerModel';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
+import { ToastModule } from 'primeng/toast';
 
 @Component({
   selector: 'fc-tabmenu',
@@ -18,6 +19,7 @@ import { ButtonModule } from 'primeng/button';
     TabMenuModule,
     FormsModule,
     ButtonModule,
+    ToastModule,
   ],
   templateUrl: './tabmenu.component.html',
   styleUrl: './tabmenu.component.scss',
@@ -27,11 +29,13 @@ export class TabmenuComponent implements OnInit {
   public activeItem: MenuItem | undefined;
   public userAccount: User = {};
   public login = false;
+  public loading = false;
   @Output() public loginInProgress: EventEmitter<boolean> = new EventEmitter();
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
@@ -52,48 +56,48 @@ export class TabmenuComponent implements OnInit {
       {
         title: 'home',
         label: 'Főoldal',
-        disabled: this.login,
+        disabled: this.login || this.loading,
       },
       {
         title: 'trainer-list',
         label: 'Edzők elérése',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role !== 'EDZO',
       },
       {
         title: 'machine-list',
         label: 'Gépek elérése',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role !== 'EDZO',
       },
       {
         title: 'previous-exercises',
         label: 'Előző edzéseim',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role === 'TAG',
       },
       {
         title: 'achievements',
         label: 'Teljesítmények',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role === 'TAG',
       },
       {
         title: 'user-list',
         label: 'Felhasználók',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role === 'ADMIN',
       },
       {
         title: 'my-schedule',
         label: 'Órarendem',
-        disabled: this.login,
+        disabled: this.login || this.loading,
         visible: this.userAccount.role === 'EDZO',
       },
       {
         title: 'pass-list',
         label: 'Bérletek',
-        disabled: this.login,
+        disabled: this.login || this.loading,
       },
     ];
   }
@@ -124,9 +128,18 @@ export class TabmenuComponent implements OnInit {
   }
 
   public logout(): void {
-    this.router.navigate(['/page/home']);
-    this.userAccount = {};
-    this.accountService.logout();
-    this.setMenuItems();
+    this.loading = true;
+    this.messageService.add({
+      summary: 'Információ!',
+      severity: 'info',
+      detail: 'Sikeres kijelentkezés! Átirányítunk a főoldalra.',
+    });
+    setTimeout(() => {
+      this.loading = false;
+      this.router.navigate(['/page/home']);
+      this.userAccount = {};
+      this.accountService.logout();
+      this.setMenuItems();
+    }, 2000);
   }
 }

@@ -42,6 +42,7 @@ export class PassListComponent implements OnInit {
   public loggedInUser: User;
   public newPassDialog = false;
   public newPass: Pass;
+  public currentPass: Pass | null;
   constructor(
     private passService: PassService,
     private accountService: AccountService,
@@ -57,6 +58,11 @@ export class PassListComponent implements OnInit {
 
   public fetchData() {
     this.passList = this.passService.fetch();
+    if (this.loggedInUser) {
+      this.userService.getById(this.loggedInUser.id).subscribe((result) => {
+        this.currentPass = result.pass;
+      });
+    }
   }
 
   public onRowEditInit(editedPass: Pass) {}
@@ -112,52 +118,55 @@ export class PassListComponent implements OnInit {
       acceptLabel: 'Igen',
       rejectLabel: 'Nem',
       accept: () => {
-        let userWithPass: User;
         this.userService
           .getById(this.loggedInUser.id)
           .pipe(
-            map((user) => {
-              return user.pass ? null : user;
-            }),
             switchMap((user) => {
-              if (user) {
-                Object.assign(userWithPass, user);
-                userWithPass.pass = pass;
-                return this.userService.save(userWithPass);
-              } else {
-                let returnedValue;
-                this.confirmationService.confirm({
-                  message: 'Van érvényes bérlete! Szeretné lecserélni?',
-                  header: 'Figyelmeztetés',
-                  icon: 'pi pi-exclamation-triangle',
-                  acceptLabel: 'Igen',
-                  rejectLabel: 'Nem',
-                  accept: () => {
-                    returnedValue = user;
-                  },
-                  reject: () => {
-                    returnedValue = of(null);
-                  },
-                });
-                return returnedValue;
-              }
+              let userWithPass = user;
+              userWithPass.pass = pass;
+              return this.userService.save(userWithPass);
             })
           )
-          .subscribe((result) => {
-            if (result) {
-              this.messageService.add({
-                severity: 'success',
-                detail: 'Siker!',
-                summary: 'Sikeres vásárlás!',
-              });
-              this.fetchData();
-            } else {
-              this.messageService.add({
-                severity: 'error',
-                detail: 'Hiba!',
-                summary: 'Sikertelen vásárlás! Már van aktív bérlete.',
-              });
-            }
+          .subscribe(() => {
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Siker!',
+              summary: 'Sikeres vásárlás!',
+            });
+          })
+          .add(() => {
+            this.fetchData();
+          });
+      },
+    });
+  }
+
+  public deletePass() {
+    this.confirmationService.confirm({
+      message: 'Biztosan törölni szeretné az aktív bérletét?',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        this.userService
+          .getById(this.loggedInUser.id)
+          .pipe(
+            switchMap((user) => {
+              let userWithPass = user;
+              userWithPass.pass = null;
+              return this.userService.save(userWithPass);
+            })
+          )
+          .subscribe(() => {
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Siker!',
+              summary: 'Bérlet törlése sikeres!',
+            });
+          })
+          .add(() => {
+            this.fetchData();
           });
       },
     });

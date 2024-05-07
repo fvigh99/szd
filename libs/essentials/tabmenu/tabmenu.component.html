@@ -31,7 +31,19 @@
       <ng-template #loggedIn>
         <span> Bejelentkezve, mint {{ userAccount.username }} </span>
         <div>
-          <button pButton (click)="logout()">Kijelentkezés</button>
+          <button
+            pButton
+            pRipple
+            (click)="logout()"
+            [disabled]="loading"
+            class="btn btn-primary"
+          >
+            <span
+              *ngIf="loading"
+              class="spinner-border spinner-border-sm me-1"
+            ></span
+            >Kijelentkezés
+          </button>
         </div>
       </ng-template>
     </div>
@@ -43,3 +55,5 @@
     (loginOver)="loginOver()"
   ></fc-login>
 </ng-container>
+
+<p-toast></p-toast>

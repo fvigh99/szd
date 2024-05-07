@@ -43,6 +43,7 @@
           <th></th>
         </tr>
       </ng-template>
+
       <ng-template
         pTemplate="body"
         let-pass
@@ -131,12 +132,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <p-checkbox
-                  [(ngModel)]="pass.sauna"
-                  name="sauna"
-                  [disabled]="true"
-                  [binary]="true"
-                ></p-checkbox>
+                <span>{{ pass.sauna ? 'Igen' : 'Nem' }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -151,12 +147,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <p-checkbox
-                  [(ngModel)]="pass.kickbox"
-                  name="kickbox"
-                  [disabled]="true"
-                  [binary]="true"
-                ></p-checkbox>
+                <span>{{ pass.kickbox ? 'Igen' : 'Nem' }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -171,12 +162,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <p-checkbox
-                  [(ngModel)]="pass.spinracing"
-                  name="spinracing"
-                  [disabled]="true"
-                  [binary]="true"
-                ></p-checkbox>
+                <span>{{ pass.spinracing ? 'Igen' : 'Nem' }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -191,12 +177,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <p-checkbox
-                  [(ngModel)]="pass.pilates"
-                  name="pilates"
-                  [disabled]="true"
-                  [binary]="true"
-                ></p-checkbox>
+                <span>{{ pass.pilates ? 'Igen' : 'Nem' }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -211,19 +192,25 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <p-checkbox
-                  [(ngModel)]="pass.yoga"
-                  name="yoga"
-                  [disabled]="true"
-                  [binary]="true"
-                ></p-checkbox>
+                <span>{{ pass.yoga ? 'Igen' : 'Nem' }}</span>
               </ng-template>
             </p-cellEditor>
           </td>
 
           <td>
-            <ng-container *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
-              <button pButton (click)="buyPass(pass)">Vásárlás</button>
+            <ng-container
+              *ngIf="
+                loggedInUser && loggedInUser.role === 'TAG' && !currentPass
+              "
+            >
+              <button pButton pRipple type="button" (click)="buyPass(pass)">
+                Vásárlás
+              </button>
+            </ng-container>
+            <ng-container *ngIf="currentPass && pass.id === currentPass.id">
+              <button pButton pRipple type="button" (click)="deletePass()">
+                Eltávolítás
+              </button>
             </ng-container>
           </td>
 
@@ -381,3 +368,4 @@
     </ng-template>
   </p-dialog>
 </form>
+<p-confirmDialog></p-confirmDialog>

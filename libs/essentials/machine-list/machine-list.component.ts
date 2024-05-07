@@ -14,6 +14,7 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'fc-machine-list',
@@ -31,6 +32,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     FormsModule,
     InputTextModule,
     ConfirmDialogModule,
+    DropdownModule,
   ],
   templateUrl: './machine-list.component.html',
   styleUrl: './machine-list.component.scss',
@@ -42,6 +44,7 @@ export class MachineListComponent implements OnInit {
   public editMachineDialog = false;
   public newMachine: Machine;
   public editedMachine: Machine;
+  public typeList: string[] = ['Súlyzós', 'Kardió'];
 
   constructor(
     private machineService: MachineService,
@@ -53,6 +56,7 @@ export class MachineListComponent implements OnInit {
   ngOnInit(): void {
     this.fetchData();
     this.loggedInUser = this.accountService.userValue?.user_object;
+    console.log(this.loggedInUser);
   }
 
   public fetchData() {

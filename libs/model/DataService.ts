@@ -20,7 +20,7 @@ export abstract class DataService<T> extends QueryDataService<T> {
 
   public getById(id: number): Observable<T> {
     return this.http
-      .get<T>(`${this.host}/${this.specUrlPart}/${id}`)
+      .get<T>(`${this.host}/${this.specUrlPart}/getId/${id}`)
       .pipe(map((item) => item));
   }
 

@@ -85,29 +85,26 @@
       </div>
       <div class="field">
         <label for="type">Típus</label>
-        <input
-          type="text"
-          pInputText
-          id="type"
-          name="type"
+        <p-dropdown
+          [options]="typeList"
           [(ngModel)]="newMachine.type"
-          required
-        />
+          name="type"
+          [required]="true"
+        >
+        </p-dropdown>
       </div>
-      <ng-container *ngIf="loggedInUser.role === 'ADMIN'">
-        <div class="field">
-          <label for="picture">Kép linkje</label>
-          <textarea
-            id="picture"
-            name="picture"
-            pInputTextarea
-            [(ngModel)]="newMachine.picture"
-            required
-            rows="3"
-            cols="20"
-          ></textarea>
-        </div>
-      </ng-container>
+      <div class="field">
+        <label for="picture">Kép linkje</label>
+        <textarea
+          id="picture"
+          name="picture"
+          pInputTextarea
+          [(ngModel)]="newMachine.picture"
+          required
+          rows="3"
+          cols="20"
+        ></textarea>
+      </div>
     </ng-template>
     <ng-template pTemplate="footer">
       <button
@@ -172,7 +169,16 @@
       </div>
       <div class="field">
         <label for="type">Típus</label>
+        <p-dropdown
+          *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+          [options]="typeList"
+          [(ngModel)]="editedMachine.type"
+          name="type"
+          [required]="true"
+        >
+        </p-dropdown>
         <input
+          *ngIf="!loggedInUser || loggedInUser.role !== 'ADMIN'"
           type="text"
           pInputText
           id="type"
@@ -182,19 +188,21 @@
           [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
-        <label for="picture">Kép linkje</label>
-        <textarea
-          id="picture"
-          name="picture"
-          pInputTextarea
-          [(ngModel)]="editedMachine.picture"
-          required
-          rows="3"
-          cols="20"
-          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
-        ></textarea>
-      </div>
+      <ng-container *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'">
+        <div class="field">
+          <label for="picture">Kép linkje</label>
+          <textarea
+            id="picture"
+            name="picture"
+            pInputTextarea
+            [(ngModel)]="editedMachine.picture"
+            required
+            rows="3"
+            cols="20"
+            [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+          ></textarea>
+        </div>
+      </ng-container>
     </ng-template>
     <ng-template pTemplate="footer">
       <button

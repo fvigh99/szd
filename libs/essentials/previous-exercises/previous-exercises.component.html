@@ -23,6 +23,7 @@
         <th>Ismétlés</th>
         <th>Intenzitás (1-10)</th>
         <th>Időtartam (perc)</th>
+        <th></th>
       </tr>
     </ng-template>
     <ng-template
@@ -33,11 +34,27 @@
     >
       <tr>
         <td>{{ exercise.date }}</td>
+
         <td>{{ exercise.machine?.name }}</td>
+
         <td>{{ exercise.weight }}</td>
+
         <td>{{ exercise.count }}</td>
-        <td>{{ exercise.intesity }}</td>
+
+        <td>{{ exercise.intensity }}</td>
+
         <td>{{ exercise.duration }}</td>
+
+        <td>
+          <button
+            pButton
+            pRipple
+            class="p-button-text"
+            (click)="deleteExercise(exercise)"
+          >
+            Törlés
+          </button>
+        </td>
       </tr>
     </ng-template>
   </p-table>
@@ -60,6 +77,8 @@
           name="machine"
           field="name"
           [forceSelection]="true"
+          [required]="true"
+          (ngModelChange)="machineChanged()"
         >
         </p-autoComplete>
       </div>
@@ -70,6 +89,12 @@
           id="weight"
           name="weight"
           [(ngModel)]="newExercise.weight"
+          [disabled]="
+            !selectedMachine?.type || selectedMachine?.type === 'Kardió'
+          "
+          [required]="
+            selectedMachine?.type && selectedMachine?.type === 'Súlyzós'
+          "
         ></p-inputNumber>
       </div>
       <div class="field">
@@ -79,6 +104,12 @@
           id="count"
           name="count"
           [(ngModel)]="newExercise.count"
+          [disabled]="
+            !selectedMachine?.type || selectedMachine?.type === 'Kardió'
+          "
+          [required]="
+            selectedMachine?.type && selectedMachine?.type === 'Súlyzós'
+          "
         ></p-inputNumber>
       </div>
       <div class="field">
@@ -89,6 +120,12 @@
           [min]="1"
           [max]="10"
           [(ngModel)]="newExercise.intensity"
+          [disabled]="
+            !selectedMachine?.type || selectedMachine?.type === 'Súlyzós'
+          "
+          [required]="
+            selectedMachine?.type && selectedMachine?.type === 'Kardió'
+          "
         ></p-inputNumber>
       </div>
       <div class="field">
@@ -97,6 +134,12 @@
           id="duration"
           name="duration"
           [(ngModel)]="newExercise.duration"
+          [disabled]="
+            !selectedMachine?.type || selectedMachine?.type === 'Súlyzós'
+          "
+          [required]="
+            selectedMachine?.type && selectedMachine?.type === 'Kardió'
+          "
         ></p-inputNumber>
       </div>
       <div class="field">
@@ -105,6 +148,7 @@
           name="date"
           [(ngModel)]="newExercise.date"
           [showIcon]="true"
+          [disabled]="!selectedMachine?.type"
           required
         ></p-calendar>
       </div>

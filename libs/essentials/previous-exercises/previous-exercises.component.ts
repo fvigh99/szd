@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
 import { Exercise, Machine, User } from 'libs/model/FcServerModel';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { DialogModule } from 'primeng/dialog';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
@@ -47,26 +47,30 @@ export class PreviousExercisesComponent implements OnInit {
   public exerciseList: Observable<Exercise>;
   public newExercise: Exercise;
   public newExerciseDialog = false;
-  public machineList: any;
+  public machineList: Machine[];
   public selectedMachine: Machine;
   public filteredMachines: Machine[] | undefined;
   public loggedInUser: User;
+  public maxDate: Date | undefined;
   constructor(
     private exerciseService: ExerciseService,
     private messageService: MessageService,
     private machineService: MachineService,
-    private accountService: AccountService
+    private accountService: AccountService,
+    private confirmationService: ConfirmationService
   ) {}
   ngOnInit(): void {
+    this.loggedInUser = this.accountService.userValue.user_object;
     this.fetchData();
     this.machineService.fetch().subscribe((result) => {
-      this.machineList = result;
+      this.machineList = result as Machine[];
     });
-    this.loggedInUser = this.accountService.userValue.user_object;
   }
 
   public fetchData() {
-    this.exerciseList = this.exerciseService.fetch();
+    this.exerciseList = this.exerciseService.getExerciseByUserId(
+      this.loggedInUser.id
+    );
   }
 
   public filterMachine(event: AutoCompleteCompleteEvent) {
@@ -92,11 +96,17 @@ export class PreviousExercisesComponent implements OnInit {
 
   public saveNewExercise() {
     if (
-      (this.newExercise.weight && this.newExercise.count) ||
-      (this.newExercise.intensity && this.newExercise.duration)
+      (this.newExercise.weight &&
+        this.newExercise.count &&
+        !this.newExercise.intensity &&
+        !this.newExercise.duration) ||
+      (this.newExercise.intensity &&
+        this.newExercise.duration &&
+        !this.newExercise.weight &&
+        !this.newExercise.count)
     ) {
       this.newExercise.user = this.loggedInUser;
-      this.newExercise.machine = this.selectedMachine.id
+      this.newExercise.machine = this.selectedMachine?.id
         ? this.selectedMachine
         : null;
       console.log(this.newExercise);
@@ -118,14 +128,16 @@ export class PreviousExercisesComponent implements OnInit {
           this.newExercise = {
             machine: {},
           };
+          this.selectedMachine = {};
         }
       });
     } else {
       this.messageService.add({
         severity: 'error',
-        detail: 'Hiba!',
-        summary:
+        detail:
           'Hibás adatok! A következő adatokpárokból egyet, és csak egyet kell megadnia: súly-ismétlés / intenzitás-időtartam!',
+        summary: 'Hiba',
+        life: 8000,
       });
     }
   }
@@ -135,5 +147,34 @@ export class PreviousExercisesComponent implements OnInit {
     this.newExercise = {
       machine: {},
     };
+    this.selectedMachine = {};
+  }
+
+  public deleteExercise(exercise: Exercise) {
+    this.confirmationService.confirm({
+      message: 'Biztosan törölni szeretné az edzést?',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        this.exerciseService
+          .delete(exercise.id)
+          .subscribe((result) => {
+            this.messageService.add({
+              severity: 'success',
+              detail: 'Siker!',
+              summary: 'Sikeres törlés!',
+            });
+          })
+          .add(() => {
+            this.fetchData();
+          });
+      },
+    });
+  }
+
+  public machineChanged() {
+    this.newExercise = {};
   }
 }
