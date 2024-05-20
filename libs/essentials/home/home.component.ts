@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { UserService } from 'libs/data-access/user/user.service';
+import { AccountService } from 'libs/data-access/account/account.service';
 
 @Component({
   selector: 'fc-home',
@@ -10,6 +11,11 @@ import { UserService } from 'libs/data-access/user/user.service';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  constructor(private userService: UserService) {}
-  public ngOnInit(): void {}
+  constructor(
+    private userService: UserService,
+    private accountService: AccountService
+  ) {}
+  public ngOnInit(): void {
+    /* console.log(this.accountService.userValue?.user_object); */
+  }
 }

@@ -1,7 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoginComponent } from '../login/login.component';
-import { TabMenuModule } from 'primeng/tabmenu';
+import { MenubarModule } from 'primeng/menubar';
 import { MenuItem, MessageService } from 'primeng/api';
 import { ActivatedRoute, Router } from '@angular/router';
 import { User } from 'libs/model/FcServerModel';
@@ -16,7 +16,7 @@ import { ToastModule } from 'primeng/toast';
   imports: [
     CommonModule,
     LoginComponent,
-    TabMenuModule,
+    MenubarModule,
     FormsModule,
     ButtonModule,
     ToastModule,
@@ -27,7 +27,7 @@ import { ToastModule } from 'primeng/toast';
 export class TabmenuComponent implements OnInit {
   public items: MenuItem[] = [];
   public activeItem: MenuItem | undefined;
-  public userAccount: User = {};
+  public loggedInUser: User;
   public login = false;
   public loading = false;
   @Output() public loginInProgress: EventEmitter<boolean> = new EventEmitter();
@@ -39,6 +39,9 @@ export class TabmenuComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    this.accountService.userValue.subscribe((user) => {
+      this.loggedInUser = user?.user_object;
+    });
     this.setMenuItems();
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['page']) {
@@ -57,47 +60,60 @@ export class TabmenuComponent implements OnInit {
         title: 'home',
         label: 'Főoldal',
         disabled: this.login || this.loading,
+        command: () => this.navigate('home'),
       },
       {
         title: 'trainer-list',
         label: 'Edzők',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role !== 'EDZO',
+        visible: this.loggedInUser?.role !== 'EDZO',
+        command: () => this.navigate('trainer-list'),
       },
       {
         title: 'machine-list',
         label: 'Gépek',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role !== 'EDZO',
+        visible: this.loggedInUser?.role !== 'EDZO',
+        command: () => this.navigate('machine-list'),
       },
       {
         title: 'previous-exercises',
         label: 'Előző edzéseim',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role === 'TAG',
+        visible: this.loggedInUser?.role === 'TAG',
+        command: () => this.navigate('previous-exercises'),
       },
       {
         title: 'achievements',
-        label: 'Teljesítményeim',
+        label:
+          this.loggedInUser && this.loggedInUser?.role === 'TAG'
+            ? 'Teljesítményeim'
+            : 'Teljesítmények',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role === 'TAG',
+        visible:
+          this.loggedInUser?.role === 'TAG' ||
+          this.loggedInUser?.role === 'ADMIN',
+        command: () => this.navigate('achievements'),
       },
       {
         title: 'user-list',
         label: 'Felhasználók',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role === 'ADMIN',
+        visible: this.loggedInUser?.role === 'ADMIN',
+        command: () => this.navigate('user-list'),
       },
       {
         title: 'my-schedule',
         label: 'Órarendem',
         disabled: this.login || this.loading,
-        visible: this.userAccount.role === 'EDZO',
+        visible: this.loggedInUser?.role === 'EDZO',
+        command: () => this.navigate('my-schedule'),
       },
       {
         title: 'pass-list',
         label: 'Bérletek',
         disabled: this.login || this.loading,
+        command: () => this.navigate('pass-list'),
       },
     ];
   }
@@ -107,7 +123,7 @@ export class TabmenuComponent implements OnInit {
   }
 
   public checkLoginStatus(value: User | null) {
-    this.userAccount = value;
+    this.loggedInUser = value;
     if (value) {
       this.login = false;
       this.loginInProgress.emit(false);
@@ -137,9 +153,27 @@ export class TabmenuComponent implements OnInit {
     setTimeout(() => {
       this.loading = false;
       this.router.navigate(['/page/home']);
-      this.userAccount = {};
+      this.loggedInUser = {};
       this.accountService.logout();
       this.setMenuItems();
     }, 2000);
+  }
+
+  public navigate(page: string) {
+    this.router.navigate(['/page/' + page]);
+  }
+
+  activeMenu(event: any) {
+    let node;
+    if (event.target.tagName === 'A') {
+      node = event.target;
+    } else {
+      node = event.target.parentNode;
+    }
+    let menuitem = document.getElementsByClassName('ui-menuitem-link');
+    for (let i = 0; i < menuitem.length; i++) {
+      menuitem[i].classList.remove('active');
+    }
+    node.classList.add('active');
   }
 }

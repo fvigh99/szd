@@ -8,11 +8,18 @@ import { User } from 'libs/model/FcServerModel';
 import { UserService } from 'libs/data-access/user/user.service';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'fc-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, ButtonModule, ToastModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    ButtonModule,
+    ToastModule,
+    InputTextModule,
+  ],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })

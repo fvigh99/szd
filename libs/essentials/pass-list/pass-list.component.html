@@ -11,7 +11,7 @@
     <p-toast></p-toast>
     <p-toolbar
       styleClass="mb-4 gap-2"
-      *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+      *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
     >
       <button
         pButton
@@ -25,7 +25,6 @@
     <p-table
       [value]="passList | async"
       [tableStyle]="{ 'min-width': '50rem' }"
-      styleClass="p-datatable-striped"
       editMode="row"
       dataKey="id"
     >
@@ -50,7 +49,16 @@
         let-editing="editing"
         let-ri="rowIndex"
       >
-        <tr [pEditableRow]="pass">
+        <tr
+          [pEditableRow]="pass"
+          [ngClass]="{
+            'owned-pass':
+              loggedInUser &&
+              loggedInUser?.role === 'TAG' &&
+              currentPass &&
+              pass.id === currentPass.id
+          }"
+        >
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
@@ -132,7 +140,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <span>{{ pass.sauna ? 'Igen' : 'Nem' }}</span>
+                <fa-icon [icon]="pass.sauna ? faCheck : faX"></fa-icon>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -147,7 +155,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <span>{{ pass.kickbox ? 'Igen' : 'Nem' }}</span>
+                <fa-icon [icon]="pass.kickbox ? faCheck : faX"></fa-icon>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -162,7 +170,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <span>{{ pass.spinracing ? 'Igen' : 'Nem' }}</span>
+                <fa-icon [icon]="pass.spinracing ? faCheck : faX"></fa-icon>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -177,7 +185,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <span>{{ pass.pilates ? 'Igen' : 'Nem' }}</span>
+                <fa-icon [icon]="pass.pilates ? faCheck : faX"></fa-icon>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -192,7 +200,7 @@
                 ></p-checkbox>
               </ng-template>
               <ng-template pTemplate="output">
-                <span>{{ pass.yoga ? 'Igen' : 'Nem' }}</span>
+                <fa-icon [icon]="pass.yoga ? faCheck : faX"></fa-icon>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -200,7 +208,7 @@
           <td>
             <ng-container
               *ngIf="
-                loggedInUser && loggedInUser.role === 'TAG' && !currentPass
+                loggedInUser && loggedInUser?.role === 'TAG' && !currentPass
               "
             >
               <button pButton pRipple type="button" (click)="buyPass(pass)">
@@ -214,7 +222,7 @@
             </ng-container>
           </td>
 
-          <td *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'">
+          <td *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
             <div class="flex align-items-center justify-content-center gap-2">
               <button
                 *ngIf="!editing"

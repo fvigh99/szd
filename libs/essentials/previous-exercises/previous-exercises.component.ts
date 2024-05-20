@@ -60,7 +60,14 @@ export class PreviousExercisesComponent implements OnInit {
     private confirmationService: ConfirmationService
   ) {}
   ngOnInit(): void {
-    this.loggedInUser = this.accountService.userValue.user_object;
+    /* this.loggedInUser = this.accountService.userValue.user_object; */
+    this.accountService.user.subscribe((value) => {
+      if (value && value.user_object) {
+        this.loggedInUser = value.user_object;
+      } else {
+        this.loggedInUser = null;
+      }
+    });
     this.fetchData();
     this.machineService.fetch().subscribe((result) => {
       this.machineList = result as Machine[];
@@ -69,7 +76,7 @@ export class PreviousExercisesComponent implements OnInit {
 
   public fetchData() {
     this.exerciseList = this.exerciseService.getExerciseByUserId(
-      this.loggedInUser.id
+      this.loggedInUser?.id
     );
   }
 

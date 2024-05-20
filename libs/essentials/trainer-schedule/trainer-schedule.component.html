@@ -8,7 +8,7 @@
 >
   <div class="card">
     <p-toast></p-toast>
-    <p-toolbar *ngIf="loggedInUser && loggedInUser.role === 'TRAINER'">
+    <p-toolbar *ngIf="loggedInUser && loggedInUser?.role === 'TRAINER'">
       <button
         pButton
         pRipple
@@ -78,90 +78,3 @@
     ></button>
   </ng-template>
 </p-dialog>
-
-<form #editScheduleForm="ngForm">
-  <p-dialog
-    [(visible)]="newScheduleDialog"
-    [style]="{ width: '450px' }"
-    header="Új óra felvitele"
-    [modal]="true"
-    styleClass="p-fluid"
-  >
-    <ng-template pTemplate="content">
-      <div class="field">
-        <label for="day">Nap</label>
-        <p-dropdown
-          [options]="dayList"
-          [(ngModel)]="newSchedule.day"
-          name="day"
-          [required]="true"
-          [autofocus]="true"
-          [filter]="true"
-          
-        >
-        </p-dropdown>
-      </div>
-      <div class="field">
-        <label for="start">Óra kezdete</label>
-        <input
-          type="text"
-          pInputText
-          id="start"
-          name="start"
-          [(ngModel)]="newSchedule.start"
-          required
-          autofocus
-        />
-      </div>
-      <div class="field">
-        <label for="end">Óra vége</label>
-        <input
-          type="text"
-          pInputText
-          id="end"
-          name="end"
-          [(ngModel)]="newSchedule.end"
-          required
-        />
-      </div>
-      <div class="field">
-        <label for="picture">Óra típusa</label>
-        <input
-          id="picture"
-          name="picture"
-          type="text"
-          pInputText
-          [(ngModel)]="newSchedule.type"
-          required
-        />
-      </div>
-    </ng-template>
-    <ng-template pTemplate="footer">
-      <button
-        pButton
-        pRipple
-        label="Vissza"
-        icon="pi pi-times"
-        class="p-button-text"
-        (click)="hideEditedDialog()"
-      ></button>
-      <button
-        pButton
-        pRipple
-        label="Mentés"
-        icon="pi pi-check"
-        class="p-button-text"
-        [disabled]="!editScheduleForm.valid"
-        (click)="saveSchedule()"
-      ></button>
-      <!-- <button
-      pButton
-      pRipple
-      label="Törlés"
-      icon="pi pi-trash"
-      class="p-button-text"
-      (click)="deleteSchedule()"
-    ></button> -->
-    </ng-template>
-  </p-dialog>
-</form>

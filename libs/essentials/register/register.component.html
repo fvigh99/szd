@@ -4,6 +4,7 @@
     <form #form="ngForm">
       <div class="mb-3">
         <input
+          pInputText
           type="text"
           name="username"
           [(ngModel)]="registeredUser.username"
@@ -12,6 +13,7 @@
       </div>
       <div class="mb-3">
         <input
+          pInputText
           type="text"
           name="firstName"
           [(ngModel)]="registeredUser.firstname"
@@ -20,6 +22,7 @@
       </div>
       <div class="mb-3">
         <input
+          pInputText
           type="text"
           name="lastName"
           [(ngModel)]="registeredUser.lastname"
@@ -28,6 +31,7 @@
       </div>
       <div class="mb-3">
         <input
+          pInputText
           type="email"
           name="email"
           placeholder="E-mail cím"
@@ -36,6 +40,7 @@
       </div>
       <div class="mb-3">
         <input
+          pInputText
           type="password"
           name="password"
           placeholder="Jelszó"
@@ -69,5 +74,4 @@
     </form>
   </div>
 </div>
-<p-toast>
-</p-toast>
+<p-toast> </p-toast>

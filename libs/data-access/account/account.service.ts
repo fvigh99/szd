@@ -1,36 +1,33 @@
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Injectable, afterNextRender } from '@angular/core';
+import {
+  Inject,
+  Injectable,
+  PLATFORM_ID,
+  afterNextRender,
+  afterRender,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from 'libs/environments/environment';
-import { User } from 'libs/model/FcServerModel';
+import { User, UserSessionObject } from 'libs/model/FcServerModel';
 import { BehaviorSubject, Observable, map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AccountService {
-  private userSubject: BehaviorSubject<{
-    access_token: string;
-    user_object: User;
-    message: string;
-  }>;
-  public user: Observable<{
-    access_token: string;
-    user_object: User;
-    message: string;
-  }>;
+  private userSubject: BehaviorSubject<UserSessionObject>;
+  public user: Observable<UserSessionObject>;
 
   constructor(private router: Router, private http: HttpClient) {
-    afterNextRender(() => {
-      this.userSubject = new BehaviorSubject(
-        JSON.parse(localStorage.getItem('user')!)
-      );
-      this.user = this.userSubject.asObservable();
-    });
+    this.userSubject = new BehaviorSubject(
+      JSON.parse(localStorage.getItem('user')!)
+    );
+    this.user = this.userSubject.asObservable();
   }
 
-  public get userValue() {
-    return this.userSubject.value;
+  public get userValue(): Observable<UserSessionObject> {
+    return this.user;
   }
 
   login(username: string, password: string) {
@@ -60,34 +57,5 @@ export class AccountService {
   }
   register(user: User) {
     return this.http.post(`${environment.apiUrl}/users/register`, user);
-  }
-
-  update(id: number, params: any) {
-    return this.http.put(`${environment.apiUrl}/users/${id}`, params).pipe(
-      map((x) => {
-        // update stored user if the logged in user updated their own record
-        if (id == this.userValue?.user_object.id) {
-          // update local storage
-          const user = { ...this.userValue, ...params };
-          localStorage.setItem('user', JSON.stringify(user));
-
-          // publish updated user to subscribers
-          this.userSubject.next(user);
-        }
-        return x;
-      })
-    );
-  }
-
-  delete(id: number) {
-    return this.http.delete(`${environment.apiUrl}/users/${id}`).pipe(
-      map((x) => {
-        // auto logout if the logged in user deleted their own record
-        if (id == this.userValue?.user_object.id) {
-          this.logout();
-        }
-        return x;
-      })
-    );
   }
 }

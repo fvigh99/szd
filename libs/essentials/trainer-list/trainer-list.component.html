@@ -9,8 +9,8 @@
 </div>
 <p-carousel
   [value]="trainerList | async"
-  [numVisible]="3"
-  [numScroll]="3"
+  [numVisible]="2"
+  [numScroll]="2"
   [circular]="false"
 >
   <ng-template let-trainer pTemplate="item">
@@ -18,7 +18,7 @@
       <div class="mb-3">
         <a (click)="imageClicked(trainer)">
           <img
-            [src]="trainer.picture"
+            [src]="'assets/trainers/' + trainer.picture"
             [alt]="trainer.firstname + ' ' + trainer.lastname"
             class="w-6 shadow-2"
           />

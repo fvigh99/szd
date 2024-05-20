@@ -32,7 +32,7 @@
           <th>E-mail cím</th>
           <th>Szerepkör</th>
           <th>Bérlet</th>
-          <th>Kép link</th>
+          <th>Kép</th>
           <th>Regisztráció dátuma</th>
         </tr>
         <tr>
@@ -145,17 +145,16 @@
           </td>
           <td>
             <p-cellEditor>
-              <ng-container *ngIf="user.role !== 'EDZO'">
+              <ng-container *ngIf="user.role === 'TAG'">
                 <ng-template pTemplate="input">
-                  <p-autoComplete
+                  <p-dropdown
                     [(ngModel)]="user.pass"
-                    [suggestions]="filteredPasses"
-                    (completeMethod)="filterPass($event)"
+                    [options]="passList"
+                    optionLabel="type"
                     name="pass"
-                    field="type"
-                    [forceSelection]="true"
+                    field="pass"
                   >
-                  </p-autoComplete>
+                  </p-dropdown>
                 </ng-template>
                 <ng-template pTemplate="output">
                   {{ user.pass?.type ?? 'Nincs' }}
@@ -166,15 +165,28 @@
           <td>
             <p-cellEditor>
               <ng-template pTemplate="input">
-                <textarea
-                  pTextArea
-                  type="text"
+                <p-fileUpload
+                  *ngIf="!user.picture"
+                  mode="basic"
                   name="picture"
-                  [(ngModel)]="user.picture"
-                  pInputTextarea
-                  rows="3"
-                  cols="20"
-                ></textarea>
+                  accept="image/*"
+                  url="http://localhost:3000/image-upload/trainer-image"
+                  chooseIcon="pi pi-upload"
+                  chooseLabel="Tallózás"
+                  (onUpload)="uploadHandler($event, user)"
+                  maxFileSize="100000000"
+                  [disabled]="user.role !== 'EDZO'"
+                >
+                </p-fileUpload>
+                <button
+                  *ngIf="user.picture"
+                  class="btn btn-primary"
+                  pButton
+                  pRipple
+                  (click)="removeProfilePicture(user)"
+                >
+                  Profilkép törlése
+                </button>
               </ng-template>
               <ng-template pTemplate="output">
                 {{ user.picture ?? 'Nincs' }}
@@ -225,3 +237,4 @@
   </div>
 </form>
 <p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>

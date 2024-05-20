@@ -8,6 +8,7 @@ export interface User extends EntityWithId {
   username?: string;
   password?: string;
   email?: string;
+  picture?: string;
   role?: string;
   pass?: Pass;
   crd?: Date;
@@ -16,12 +17,15 @@ export interface User extends EntityWithId {
 export interface Achievement extends EntityWithId {
   name?: string;
   summary?: string;
-  icon?: string;
+  type?: string;
+  eventCount?: number;
   machine?: Machine;
   weight?: number;
-  count?: number;
+  repetitionCount?: number;
   intensity?: number;
   duration?: number;
+  typeOfGroupTraining?: string;
+  icon?: string;
 }
 
 export interface Machine extends EntityWithId {
@@ -32,7 +36,7 @@ export interface Machine extends EntityWithId {
 }
 
 export interface Schedule extends EntityWithId {
-  user?: User;
+  trainer?: User;
   day?: number;
   start?: number;
   end?: number;
@@ -82,4 +86,20 @@ export interface GroupExercise extends EntityWithId {
   type?: string;
   duration?: number;
   trainer?: User;
+}
+
+export interface UserSessionObject {
+  access_token?: string;
+  user_object?: User;
+  message?: string;
+}
+
+export interface FileUploadResult {
+  statusCode?: number;
+  data: string;
+}
+
+export interface Day {
+  id?: number;
+  name?: string;
 }

@@ -17,4 +17,5 @@ export const routes: Routes = [
   { path: 'page/previous-exercises', component: PreviousExercisesComponent },
   { path: 'page/pass-list', component: PassListComponent },
   { path: 'page/my-schedule', component: MyScheduleComponent },
+  { path: 'page/achievements', component: AchievementsComponent },
 ];

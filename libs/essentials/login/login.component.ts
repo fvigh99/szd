@@ -49,14 +49,14 @@ export class LoginComponent implements OnInit {
     this.accountService
       .login(this.username, this.password)
       .subscribe((returnValue) => {
-        if (returnValue.message) {
+        if (returnValue.message?.length > 0) {
           this.messageService.add({
             summary: 'Hiba!',
             severity: 'error',
             detail: returnValue.message,
           });
         } else {
-          this.loggedInUser = this.accountService.userValue?.user_object;
+          this.loggedInUser = returnValue.user_object;
           this.messageService.add({
             summary: 'Siker!',
             severity: 'success',

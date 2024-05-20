@@ -56,7 +56,13 @@ export class TrainerScheduleComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loggedInUser = this.accountService.userValue?.user_object;
+    this.accountService.user.subscribe((value) => {
+      if (value && value.user_object) {
+        this.loggedInUser = value.user_object;
+      } else {
+        this.loggedInUser = null;
+      }
+    });
     this.scheduleList = this.scheduleService.getById(this.trainer.id);
   }
 

@@ -16,6 +16,8 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { InputTextModule } from 'primeng/inputtext';
 import { UserService } from 'libs/data-access/user/user.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faCheck, faX } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'fc-pass-list',
@@ -33,6 +35,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     InputNumberModule,
     InputTextModule,
     ConfirmDialogModule,
+    FaIconComponent,
   ],
   templateUrl: './pass-list.component.html',
   styleUrl: './pass-list.component.scss',
@@ -43,6 +46,8 @@ export class PassListComponent implements OnInit {
   public newPassDialog = false;
   public newPass: Pass;
   public currentPass: Pass | null;
+  public faCheck = faCheck;
+  public faX = faX;
   constructor(
     private passService: PassService,
     private accountService: AccountService,
@@ -52,14 +57,21 @@ export class PassListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.loggedInUser = this.accountService.userValue?.user_object;
+    /* this.loggedInUser = this.accountService.userValue?.user_object; */
+    this.accountService.user.subscribe((value) => {
+      if (value && value.user_object) {
+        this.loggedInUser = value.user_object;
+      } else {
+        this.loggedInUser = null;
+      }
+    });
     this.fetchData();
   }
 
   public fetchData() {
     this.passList = this.passService.fetch();
     if (this.loggedInUser) {
-      this.userService.getById(this.loggedInUser.id).subscribe((result) => {
+      this.userService.getById(this.loggedInUser?.id).subscribe((result) => {
         this.currentPass = result.pass;
       });
     }
@@ -119,7 +131,7 @@ export class PassListComponent implements OnInit {
       rejectLabel: 'Nem',
       accept: () => {
         this.userService
-          .getById(this.loggedInUser.id)
+          .getById(this.loggedInUser?.id)
           .pipe(
             switchMap((user) => {
               let userWithPass = user;
@@ -150,7 +162,7 @@ export class PassListComponent implements OnInit {
       rejectLabel: 'Nem',
       accept: () => {
         this.userService
-          .getById(this.loggedInUser.id)
+          .getById(this.loggedInUser?.id)
           .pipe(
             switchMap((user) => {
               let userWithPass = user;

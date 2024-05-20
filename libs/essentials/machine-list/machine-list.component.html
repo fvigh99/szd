@@ -13,7 +13,7 @@
   <p-toast></p-toast>
   <p-toolbar
     styleClass="mb-4 gap-2"
-    *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+    *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
   >
     <button
       pButton
@@ -133,7 +133,7 @@
     [(visible)]="editMachineDialog"
     [style]="{ width: '450px' }"
     [header]="
-      loggedInUser && loggedInUser.role === 'ADMIN'
+      loggedInUser && loggedInUser?.role === 'ADMIN'
         ? 'Gép módosítása'
         : 'Gép megtekintése'
     "
@@ -150,8 +150,8 @@
           name="name"
           [(ngModel)]="editedMachine.name"
           required
-          [autofocus]="loggedInUser && loggedInUser.role === 'ADMIN'"
-          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+          [autofocus]="loggedInUser && loggedInUser?.role === 'ADMIN'"
+          [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
         />
       </div>
       <div class="field">
@@ -164,13 +164,13 @@
           required
           rows="3"
           cols="20"
-          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+          [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
         ></textarea>
       </div>
       <div class="field">
         <label for="type">Típus</label>
         <p-dropdown
-          *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
           [options]="typeList"
           [(ngModel)]="editedMachine.type"
           name="type"
@@ -178,17 +178,17 @@
         >
         </p-dropdown>
         <input
-          *ngIf="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+          *ngIf="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
           type="text"
           pInputText
           id="type"
           name="type"
           [(ngModel)]="editedMachine.type"
           required
-          [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+          [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <ng-container *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'">
+      <ng-container *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
         <div class="field">
           <label for="picture">Kép linkje</label>
           <textarea
@@ -199,7 +199,7 @@
             required
             rows="3"
             cols="20"
-            [disabled]="!loggedInUser || loggedInUser.role !== 'ADMIN'"
+            [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
           ></textarea>
         </div>
       </ng-container>
@@ -214,7 +214,7 @@
         (click)="hideEditedDialog()"
       ></button>
       <button
-        *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+        *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
         pButton
         pRipple
         label="Mentés"
@@ -224,7 +224,7 @@
         (click)="saveEditedMachine()"
       ></button>
       <button
-        *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'"
+        *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
         pButton
         pRipple
         label="Törlés"
