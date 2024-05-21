@@ -57,13 +57,7 @@ export class UserListComponent implements OnInit {
   ngOnInit(): void {
     this.fetchUsers();
     this.fetchPasses();
-    this.accountService.user.subscribe((value) => {
-      if (value && value.user_object) {
-        this.loggedInUser = value.user_object;
-      } else {
-        this.loggedInUser = null;
-      }
-    });
+    this.loggedInUser = this.accountService.userValue?.user_object;
   }
 
   public fetchUsers(): void {

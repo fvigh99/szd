@@ -1,12 +1,5 @@
-import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import {
-  Inject,
-  Injectable,
-  PLATFORM_ID,
-  afterNextRender,
-  afterRender,
-} from '@angular/core';
+import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { environment } from 'libs/environments/environment';
 import { User, UserSessionObject } from 'libs/model/FcServerModel';
@@ -26,19 +19,16 @@ export class AccountService {
     this.user = this.userSubject.asObservable();
   }
 
-  public get userValue(): Observable<UserSessionObject> {
-    return this.user;
+  public get userValue(): UserSessionObject {
+    return this.userSubject.value;
   }
 
   login(username: string, password: string) {
     return this.http
-      .post<{ access_token: string; user_object: User; message: string }>(
-        `${environment.apiUrl}/authentication/login`,
-        {
-          username,
-          password,
-        }
-      )
+      .post<UserSessionObject>(`${environment.apiUrl}/authentication/login`, {
+        username,
+        password,
+      })
       .pipe(
         map((user) => {
           // store user details and jwt token in local storage to keep user logged in between page refreshes
@@ -54,8 +44,5 @@ export class AccountService {
     localStorage.removeItem('user');
     this.userSubject.next(null);
     // should return that we are not logged in
-  }
-  register(user: User) {
-    return this.http.post(`${environment.apiUrl}/users/register`, user);
   }
 }

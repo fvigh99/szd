@@ -61,13 +61,7 @@ export class PreviousExercisesComponent implements OnInit {
   ) {}
   ngOnInit(): void {
     /* this.loggedInUser = this.accountService.userValue.user_object; */
-    this.accountService.user.subscribe((value) => {
-      if (value && value.user_object) {
-        this.loggedInUser = value.user_object;
-      } else {
-        this.loggedInUser = null;
-      }
-    });
+    this.loggedInUser = this.accountService.userValue?.user_object;
     this.fetchData();
     this.machineService.fetch().subscribe((result) => {
       this.machineList = result as Machine[];

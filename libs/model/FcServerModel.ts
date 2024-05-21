@@ -38,11 +38,26 @@ export interface Machine extends EntityWithId {
 export interface Schedule extends EntityWithId {
   trainer?: User;
   day?: number;
-  start?: number;
-  end?: number;
+  start?: Date;
+  end?: Date;
   type?: string;
   capacity?: number;
   inactive?: boolean;
+}
+
+export interface ScheduleWithTime extends Schedule {
+  startTime?: string;
+  endTime?: string;
+}
+
+export interface DisplayableSchedule {
+  monday?: ScheduleWithTime;
+  tuesday?: ScheduleWithTime;
+  wednesday?: ScheduleWithTime;
+  thursday?: ScheduleWithTime;
+  friday?: ScheduleWithTime;
+  saturday?: ScheduleWithTime;
+  sunday?: ScheduleWithTime;
 }
 
 export interface UserInTraining extends EntityWithId {

@@ -39,9 +39,7 @@ export class TabmenuComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.accountService.userValue.subscribe((user) => {
-      this.loggedInUser = user?.user_object;
-    });
+    this.loggedInUser = this.accountService.userValue?.user_object;
     this.setMenuItems();
     this.activatedRoute.queryParams.subscribe((params) => {
       if (params['page']) {
@@ -156,7 +154,7 @@ export class TabmenuComponent implements OnInit {
       this.loggedInUser = {};
       this.accountService.logout();
       this.setMenuItems();
-    }, 2000);
+    }, 500);
   }
 
   public navigate(page: string) {

@@ -56,13 +56,7 @@ export class MachineListComponent implements OnInit {
   ngOnInit(): void {
     this.fetchData();
     /* this.loggedInUser = this.accountService.userValue?.user_object; */
-    this.accountService.user.subscribe((value) => {
-      if (value && value.user_object) {
-        this.loggedInUser = value.user_object;
-      } else {
-        this.loggedInUser = null;
-      }
-    });
+    this.loggedInUser = this.accountService.userValue?.user_object;
   }
 
   public fetchData() {

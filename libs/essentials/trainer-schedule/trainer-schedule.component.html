@@ -3,12 +3,11 @@
   [resizable]="false"
   [modal]="true"
   [(visible)]="dialogVisible"
-  [style]="{ width: '75vw' }"
-  [contentStyle]="{ height: '300px' }"
+  [style]="{ width: '85vw' }"
+  [contentStyle]="{ height: '500px' }"
 >
   <div class="card">
-    <p-toast></p-toast>
-    <p-toolbar *ngIf="loggedInUser && loggedInUser?.role === 'TRAINER'">
+    <p-toolbar *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
       <button
         pButton
         pRipple
@@ -18,8 +17,21 @@
         (click)="openNew()"
       ></button>
     </p-toolbar>
+
+    <div class="pb-2" *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
+      Az óra időpontjára kattintva tud jelentkezni az edzésre! Amennyiben egy
+      órára már jelentkezett, az időpontra való kattintással le bír jelentkezni
+      róla!
+    </div>
+
+    <div class="pb-2">
+      Zöld = Már jelentkezett az edzésre <br />
+      Piros = Az edzés jelenleg inaktív <br />
+      Sárga = Az edzésre nincs szabad hely <br />
+    </div>
+
     <p-table
-      [value]="scheduleList | async"
+      [value]="displayableScheduleList | async"
       [tableStyle]="{ 'min-width': '50rem' }"
       styleClass="p-datatable-striped"
     >
@@ -37,30 +49,100 @@
       <ng-template
         pTemplate="body"
         let-schedule
+        let-rowData
         let-editing="editing"
         let-ri="rowIndex"
       >
         <tr>
-          <td *ngIf="schedule.day === 0">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.monday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.monday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.monday)">
+              {{ schedule.monday?.startTime }} -
+              {{ schedule.monday?.endTime }}
+              <span *ngIf="schedule.monday">({{ schedule.monday.type }})</span>
+            </a>
           </td>
-          <td *ngIf="schedule.day === 1">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.tuesday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.tuesday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.tuesday)">
+              {{ schedule.tuesday?.startTime }} -
+              {{ schedule.tuesday?.endTime }}
+              <span *ngIf="schedule.tuesday"
+                >({{ schedule.tuesday.type }})</span
+              >
+            </a>
           </td>
-          <td *ngIf="schedule.day === 2">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.wednesday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.wednesday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.wednesday)">
+              {{ schedule.wednesday?.startTime }} -
+              {{ schedule.wednesday?.endTime }}
+              <span *ngIf="schedule.wednesday"
+                >({{ schedule.wednesday.type }})</span
+              >
+            </a>
           </td>
-          <td *ngIf="schedule.day === 3">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.thursday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.thursday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.thursday)">
+              {{ schedule.thursday?.startTime }} -
+              {{ schedule.thursday?.endTime }}
+              <span *ngIf="schedule.thursday"
+                >({{ schedule.thursday.type }})</span
+              >
+            </a>
           </td>
-          <td *ngIf="schedule.day === 4">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.friday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.friday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.friday)">
+              {{ schedule.friday?.startTime }} - {{ schedule.friday?.endTime }}
+              <span *ngIf="schedule.friday">({{ schedule.friday.type }})</span>
+            </a>
           </td>
-          <td *ngIf="schedule.day === 5">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.saturday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.saturday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.saturday)">
+              {{ schedule.saturday?.startTime }} -
+              {{ schedule.saturday?.endTime }}
+              <span *ngIf="schedule.saturday"
+                >({{ schedule.saturday.type }})</span
+              >
+            </a>
           </td>
-          <td *ngIf="schedule.day === 6">
-            {{ schedule.start }} - {{ schedule.end }}
+          <td
+            [ngClass]="{
+              'inactive-training': schedule.sunday?.inactive,
+              'user-in-training': loggedInUserTrainingIds.includes(schedule.sunday?.id),
+            }"
+          >
+            <a (click)="trainingClicked(schedule.sunday)">
+              {{ schedule.sunday?.startTime }} - {{ schedule.sunday?.endTime }}
+              <span *ngIf="schedule.sunday">({{ schedule.sunday.type }})</span>
+            </a>
           </td>
         </tr>
       </ng-template>
@@ -77,4 +159,189 @@
       class="p-button-text"
     ></button>
   </ng-template>
+
+  <form #newScheduleForm="ngForm">
+    <p-dialog
+      [(visible)]="newScheduleDialog"
+      [style]="{ width: '450px' }"
+      header="Új óra felvitele"
+      [modal]="true"
+      styleClass="p-fluid"
+      [contentStyle]="{ overflow: 'visible' }"
+    >
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="day">Nap</label>
+          <p-dropdown
+            [options]="dayList"
+            [(ngModel)]="newSchedule.day"
+            name="day"
+            [required]="true"
+            [autofocus]="true"
+            optionLabel="name"
+            optionValue="id"
+          >
+          </p-dropdown>
+        </div>
+        <div class="field">
+          <label for="type">Óra típusa</label>
+          <p-dropdown
+            [options]="groupTrainingTypeList"
+            [(ngModel)]="newSchedule.type"
+            name="type"
+            [required]="true"
+          >
+          </p-dropdown>
+        </div>
+        <div class="field">
+          <label for="start">Óra kezdete</label>
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="newSchedule.start"
+            [timeOnly]="true"
+            name="start"
+            [required]="true"
+          >
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="end">Óra vége</label>
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="newSchedule.end"
+            [timeOnly]="true"
+            name="end"
+            [required]="true"
+          >
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="capacity">Kapacitás</label>
+          <p-inputNumber
+            name="capacity"
+            required
+            [max]="50"
+            [min]="1"
+            [(ngModel)]="newSchedule.capacity"
+          ></p-inputNumber>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Vissza"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="hideNewDialog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Mentés"
+          icon="pi pi-check"
+          class="p-button-text"
+          [disabled]="!newScheduleForm.valid"
+          (click)="saveNewSchedule()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+  </form>
+
+  <form #editScheduleForm="ngForm">
+    <p-dialog
+      [(visible)]="editScheduleDialog"
+      [style]="{ width: '450px' }"
+      header="Óra módosítása"
+      [modal]="true"
+      styleClass="p-fluid"
+      [contentStyle]="{ overflow: 'visible' }"
+    >
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="day">Nap</label>
+          <p-dropdown
+            [options]="dayList"
+            [(ngModel)]="editedSchedule.day"
+            name="day"
+            [required]="true"
+            [autofocus]="true"
+            optionLabel="name"
+            optionValue="id"
+          >
+          </p-dropdown>
+        </div>
+        <div class="field">
+          <label for="type">Óra típusa</label>
+          <p-dropdown
+            [options]="groupTrainingTypeList"
+            [(ngModel)]="editedSchedule.type"
+            name="type"
+            [required]="true"
+          >
+          </p-dropdown>
+        </div>
+        <div class="field">
+          <label for="start">Óra kezdete</label>
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="editedSchedule.start"
+            [timeOnly]="true"
+            name="start"
+            [required]="true"
+          >
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="end">Óra vége</label>
+          <p-calendar
+            inputId="calendar-timeonly"
+            [(ngModel)]="editedSchedule.end"
+            [timeOnly]="true"
+            name="end"
+            [required]="true"
+          >
+          </p-calendar>
+        </div>
+        <div class="field">
+          <label for="capacity">Kapacitás</label>
+          <p-inputNumber
+            name="capacity"
+            required
+            [max]="50"
+            [min]="1"
+            [(ngModel)]="editedSchedule.capacity"
+          ></p-inputNumber>
+        </div>
+        <div class="field">
+          <p-checkbox
+            name="inactive"
+            [(ngModel)]="editedSchedule.inactive"
+            [label]="'Inaktív'"
+            [binary]="true"
+          ></p-checkbox>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Vissza"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="hideEditedDialog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Mentés"
+          icon="pi pi-check"
+          class="p-button-text"
+          [disabled]="!editScheduleForm.valid"
+          (click)="saveEditedSchedule()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+  </form>
 </p-dialog>
+<p-confirmDialog></p-confirmDialog>
