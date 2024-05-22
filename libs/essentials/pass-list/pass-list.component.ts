@@ -41,7 +41,7 @@ import { faCheck, faX } from '@fortawesome/free-solid-svg-icons';
   styleUrl: './pass-list.component.scss',
 })
 export class PassListComponent implements OnInit {
-  public passList: Observable<Pass>;
+  public passList: Observable<Pass[]>;
   public loggedInUser: User;
   public newPassDialog = false;
   public newPass: Pass;
@@ -58,7 +58,6 @@ export class PassListComponent implements OnInit {
 
   ngOnInit(): void {
     this.loggedInUser = this.accountService.userValue?.user_object;
-    console.log(this.loggedInUser);
     this.fetchData();
   }
 
@@ -136,8 +135,8 @@ export class PassListComponent implements OnInit {
           .subscribe(() => {
             this.messageService.add({
               severity: 'success',
-              detail: 'Siker!',
-              summary: 'Sikeres vásárlás!',
+              summary: 'Siker!',
+              detail: 'Sikeres vásárlás!',
             });
           })
           .add(() => {
@@ -167,8 +166,8 @@ export class PassListComponent implements OnInit {
           .subscribe(() => {
             this.messageService.add({
               severity: 'success',
-              detail: 'Siker!',
-              summary: 'Bérlet törlése sikeres!',
+              summary: 'Siker!',
+              detail: 'Bérlet törlése sikeres!',
             });
           })
           .add(() => {

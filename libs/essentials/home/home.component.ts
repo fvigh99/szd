@@ -10,12 +10,6 @@ import { AccountService } from 'libs/data-access/account/account.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
 })
-export class HomeComponent implements OnInit {
-  constructor(
-    private userService: UserService,
-    private accountService: AccountService
-  ) {}
-  public ngOnInit(): void {
-    /* console.log(this.accountService.userValue?.user_object); */
-  }
+export class HomeComponent {
+  constructor() {}
 }

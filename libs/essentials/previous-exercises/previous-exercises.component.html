@@ -18,6 +18,8 @@
     <ng-template pTemplate="header">
       <tr>
         <th>Időpont</th>
+        <th>Edzés típus</th>
+        <th>Csoportos edzés típus</th>
         <th>Gép</th>
         <th>Súly (kg)</th>
         <th>Ismétlés</th>
@@ -34,6 +36,10 @@
     >
       <tr>
         <td>{{ exercise.date }}</td>
+
+        <td>{{ exercise.type }}</td>
+
+        <td>{{ exercise.groupTrainingType }}</td>
 
         <td>{{ exercise.machine?.name }}</td>
 
@@ -69,50 +75,79 @@
   >
     <ng-template pTemplate="content">
       <div class="field">
-        <label for="machine">Használt gép</label>
-        <p-autoComplete
-          [(ngModel)]="selectedMachine"
-          [suggestions]="filteredMachines"
-          (completeMethod)="filterMachine($event)"
-          name="machine"
-          field="name"
-          [forceSelection]="true"
+        <label for="type">Típus</label>
+        <p-dropdown
+          [(ngModel)]="newExercise.type"
+          [options]="['Egyéni', 'Csoportos']"
+          name="type"
           [required]="true"
-          (ngModelChange)="machineChanged()"
+          appendTo="body"
+          (ngModelChange)="typeChanged($event)"
         >
-        </p-autoComplete>
+        </p-dropdown>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="newExercise.type && newExercise.type === 'Csoportos'"
+      >
+        <label for="groupTrainingType">Csoportos edzés típusa</label>
+        <p-dropdown
+          [(ngModel)]="newExercise.groupTrainingType"
+          [options]="groupTrainingTypeList"
+          name="groupTrainingType"
+          [required]="newExercise.type && newExercise.type === 'Csoportos'"
+          appendTo="body"
+        >
+        </p-dropdown>
+      </div>
+      <div
+        class="field"
+        *ngIf="newExercise.type && newExercise.type === 'Egyéni'"
+      >
+        <label for="machine">Használt gép</label>
+        <p-dropdown
+          [(ngModel)]="newExercise.machine"
+          [options]="machineList"
+          name="machine"
+          [required]="newExercise.type && newExercise.type === 'Egyéni'"
+          optionLabel="name"
+        >
+        </p-dropdown>
+      </div>
+      <div
+        class="field"
+        *ngIf="newExercise.machine && newExercise.machine.type === 'Súlyzós'"
+      >
         <label for="weight">Súly (kg)</label>
         <p-inputNumber
           type="text"
           id="weight"
           name="weight"
           [(ngModel)]="newExercise.weight"
-          [disabled]="
-            !selectedMachine?.type || selectedMachine?.type === 'Kardió'
-          "
           [required]="
-            selectedMachine?.type && selectedMachine?.type === 'Súlyzós'
+            newExercise.machine?.type && newExercise.machine?.type === 'Súlyzós'
           "
         ></p-inputNumber>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="newExercise.machine && newExercise.machine.type === 'Súlyzós'"
+      >
         <label for="count">Ismétlés</label>
         <p-inputNumber
           type="text"
           id="count"
           name="count"
           [(ngModel)]="newExercise.count"
-          [disabled]="
-            !selectedMachine?.type || selectedMachine?.type === 'Kardió'
-          "
           [required]="
-            selectedMachine?.type && selectedMachine?.type === 'Súlyzós'
+            newExercise.machine?.type && newExercise.machine?.type === 'Súlyzós'
           "
         ></p-inputNumber>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="newExercise.machine && newExercise.machine.type === 'Kardió'"
+      >
         <label for="intensity">Intenzitás (1-10)</label>
         <p-inputNumber
           id="intensity"
@@ -120,25 +155,22 @@
           [min]="1"
           [max]="10"
           [(ngModel)]="newExercise.intensity"
-          [disabled]="
-            !selectedMachine?.type || selectedMachine?.type === 'Súlyzós'
-          "
           [required]="
-            selectedMachine?.type && selectedMachine?.type === 'Kardió'
+            newExercise.machine?.type && newExercise.machine?.type === 'Kardió'
           "
         ></p-inputNumber>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="newExercise.machine && newExercise.machine.type === 'Kardió'"
+      >
         <label for="duration">Időtartam (perc)</label>
         <p-inputNumber
           id="duration"
           name="duration"
           [(ngModel)]="newExercise.duration"
-          [disabled]="
-            !selectedMachine?.type || selectedMachine?.type === 'Súlyzós'
-          "
           [required]="
-            selectedMachine?.type && selectedMachine?.type === 'Kardió'
+            newExercise.machine?.type && newExercise.machine?.type === 'Kardió'
           "
         ></p-inputNumber>
       </div>
@@ -148,8 +180,14 @@
           name="date"
           [(ngModel)]="newExercise.date"
           [showIcon]="true"
-          [disabled]="!selectedMachine?.type"
+          [disabled]="
+            (newExercise.type === 'Egyéni' && !newExercise.machine?.type) ||
+            (newExercise.type === 'Csoportos' &&
+              !newExercise.groupTrainingType) ||
+            !newExercise.type
+          "
           required
+          appendTo="body"
         ></p-calendar>
       </div>
     </ng-template>

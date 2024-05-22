@@ -1,18 +1,289 @@
 <div class="pl-2 pb-3">
-  <h1>Teljesítmények</h1>
+  <h1>Kitűzők</h1>
 </div>
 
 <div class="pl-2 pb-3">
-  <span> Ezen az oldalon tekintheti meg a teljesítményeket! </span>
+  <span> Ezen az oldalon tekintheti meg a kitűzőket! </span>
 </div>
 
-<form #editMachineForm="ngForm">
+<p-toast></p-toast>
+<p-toolbar
+  styleClass="mb-4 gap-2"
+  *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+>
+  <button
+    pButton
+    pRipple
+    label="Új kitűző hozzáadása"
+    icon="pi pi-plus"
+    class="p-button-success mr-2"
+    (click)="openNew()"
+  ></button>
+</p-toolbar>
+
+<p-carousel
+  [value]="achievementList | async"
+  [numVisible]="5"
+  [numScroll]="1"
+  [circular]="true"
+>
+  <ng-template let-achievement pTemplate="item">
+    <div class="border-1 surface-border border-round m-2 text-center py-5 px-3">
+      <div class="mb-3">
+        <a (click)="openEditedDialog(achievement)">
+          <img
+            src="assets/achievements/{{ achievement.icon }}"
+            [alt]="achievement.name"
+            class="border-round"
+          />
+        </a>
+      </div>
+      <div>
+        <h4 class="mb-1">{{ achievement.name }}</h4>
+      </div>
+    </div>
+  </ng-template>
+</p-carousel>
+
+<form #newAchievementForm="ngForm">
+  <p-dialog
+    [(visible)]="newAchievementDialog"
+    [style]="{ width: '450px' }"
+    [header]="
+      loggedInUser && loggedInUser?.role === 'ADMIN'
+        ? 'Kitűző hozzáadása'
+        : 'Kitűző megtekintése'
+    "
+    [modal]="true"
+    styleClass="p-fluid"
+  >
+    <ng-template pTemplate="content">
+      <div class="field">
+        <label for="name">Megnevezés</label>
+        <input
+          type="text"
+          pInputText
+          id="name"
+          name="name"
+          [(ngModel)]="newAchievement.name"
+          required
+          [autofocus]="loggedInUser && loggedInUser?.role === 'ADMIN'"
+          [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
+        />
+      </div>
+      <div class="field">
+        <label for="summary">Leírás</label>
+        <textarea
+          id="summary"
+          name="summary"
+          pInputTextarea
+          [(ngModel)]="newAchievement.summary"
+          required
+          rows="3"
+          cols="20"
+          [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
+        ></textarea>
+      </div>
+      <div class="field">
+        <label for="type">Típus</label>
+        <p-dropdown
+          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+          [options]="achievementTypeList"
+          [(ngModel)]="newAchievement.type"
+          name="type"
+          [required]="true"
+          appendTo="body"
+        >
+        </p-dropdown>
+      </div>
+      <div
+        class="field"
+        *ngIf="newAchievement.type && newAchievement.type === 'Csoportos'"
+      >
+        <label for="eventCount">Edzések száma</label>
+        <p-inputNumber
+          [(ngModel)]="newAchievement.eventCount"
+          inputId="integeronly"
+          name="eventCount"
+        />
+      </div>
+      <div
+        class="field"
+        *ngIf="newAchievement.type && newAchievement.type === 'Egyéni'"
+      >
+        <label for="machine">Használt gép</label>
+        <p-dropdown
+          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+          [options]="machineList"
+          [(ngModel)]="newAchievement.machine"
+          name="machine"
+          optionLabel="name"
+          appendTo="body"
+        >
+        </p-dropdown>
+      </div>
+      <div
+        class="field"
+        *ngIf="
+          newAchievement.type &&
+          newAchievement.type === 'Egyéni' &&
+          newAchievement.machine &&
+          newAchievement.machine.type === 'Súlyzós'
+        "
+      >
+        <label for="weight">Súly (kg)</label>
+        <p-inputNumber
+          [(ngModel)]="newAchievement.eventCount"
+          inputId="integeronly"
+          name="weight"
+          [required]="
+            newAchievement.type &&
+            newAchievement.type === 'Egyéni' &&
+            newAchievement.machine &&
+            newAchievement.machine.type === 'Súlyzós'
+          "
+        />
+      </div>
+      <div
+        class="field"
+        *ngIf="
+          newAchievement.type &&
+          newAchievement.type === 'Egyéni' &&
+          newAchievement.machine &&
+          newAchievement.machine.type === 'Súlyzós'
+        "
+      >
+        <label for="repetitionCount">Ismétlések száma</label>
+        <p-inputNumber
+          [(ngModel)]="newAchievement.repetitionCount"
+          inputId="integeronly"
+          name="repetitionCount"
+          [required]="
+            newAchievement.type &&
+            newAchievement.type === 'Egyéni' &&
+            newAchievement.machine &&
+            newAchievement.machine.type === 'Súlyzós'
+          "
+        />
+      </div>
+      <div
+        class="field"
+        *ngIf="
+          newAchievement.type &&
+          newAchievement.type === 'Egyéni' &&
+          newAchievement.machine &&
+          newAchievement.machine.type === 'Kardió'
+        "
+      >
+        <label for="intensity">Intenzitás (1-10)</label>
+        <p-inputNumber
+          [(ngModel)]="newAchievement.intensity"
+          inputId="integeronly"
+          name="intensity"
+          [min]="1"
+          [max]="10"
+          [required]="
+            newAchievement.type &&
+            newAchievement.type === 'Egyéni' &&
+            newAchievement.machine &&
+            newAchievement.machine.type === 'Kardió'
+          "
+        />
+      </div>
+      <div
+        class="field"
+        *ngIf="
+          newAchievement.type &&
+          newAchievement.type === 'Egyéni' &&
+          newAchievement.machine &&
+          newAchievement.machine.type === 'Kardió'
+        "
+      >
+        <label for="duration">Időtartam (perc)</label>
+        <p-inputNumber
+          [(ngModel)]="newAchievement.duration"
+          inputId="integeronly"
+          name="duration"
+          [required]="
+            newAchievement.type &&
+            newAchievement.type === 'Egyéni' &&
+            newAchievement.machine &&
+            newAchievement.machine.type === 'Kardió'
+          "
+        />
+      </div>
+      <div
+        class="field"
+        *ngIf="newAchievement.type && newAchievement.type === 'Csoportos'"
+      >
+        <label for="typeOfGroupTraining">Csoportos edzés típusa</label>
+        <p-dropdown
+          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+          [options]="groupTrainingTypeList"
+          [(ngModel)]="newAchievement.typeOfGroupTraining"
+          name="typeOfGroupTraining"
+          appendTo="body"
+          [required]="
+            newAchievement.type && newAchievement.type === 'Csoportos'
+          "
+        >
+        </p-dropdown>
+      </div>
+      <div class="field">
+        <label for="icon">Ikon</label>
+        <p-fileUpload
+          *ngIf="!newAchievement.icon"
+          mode="basic"
+          name="picture"
+          accept="image/*"
+          url="http://localhost:3000/image-upload/achievement-icon"
+          chooseIcon="pi pi-upload"
+          chooseLabel="Tallózás"
+          (onUpload)="uploadHandler($event, newAchievement)"
+          maxFileSize="100000000"
+        >
+        </p-fileUpload>
+        <button
+          *ngIf="newAchievement.icon"
+          class="btn btn-primary"
+          pButton
+          pRipple
+          (click)="removeIcon(newAchievement)"
+        >
+          Ikon törlése
+        </button>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Bezárás"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideNewDialog()"
+      ></button>
+      <button
+        *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+        pButton
+        pRipple
+        label="Mentés"
+        icon="pi pi-check"
+        class="p-button-text"
+        [disabled]="!newAchievementForm.valid"
+        (click)="saveNewAchievement()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>
+
+<form #editAchievementForm="ngForm">
   <p-dialog
     [(visible)]="editAchievementDialog"
     [style]="{ width: '450px' }"
     [header]="
       loggedInUser && loggedInUser?.role === 'ADMIN'
-        ? 'Kitűző módosítása'
+        ? 'Kitűző hozzáadása'
         : 'Kitűző megtekintése'
     "
     [modal]="true"
@@ -48,49 +319,88 @@
       <div class="field">
         <label for="type">Típus</label>
         <p-dropdown
-          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
           [options]="achievementTypeList"
           [(ngModel)]="editedAchievement.type"
           name="type"
           [required]="true"
+          appendTo="body"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         >
         </p-dropdown>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="editedAchievement.type && editedAchievement.type === 'Csoportos'"
+      >
         <label for="eventCount">Edzések száma</label>
         <p-inputNumber
           [(ngModel)]="editedAchievement.eventCount"
           inputId="integeronly"
           name="eventCount"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="editedAchievement.type && editedAchievement.type === 'Egyéni'"
+      >
         <label for="machine">Használt gép</label>
         <p-dropdown
-          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
           [options]="machineList"
           [(ngModel)]="editedAchievement.machine"
           name="machine"
+          optionLabel="name"
+          appendTo="body"
+          [required]="
+            editedAchievement.type && editedAchievement.type === 'Egyéni'
+          "
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         >
         </p-dropdown>
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="
+          editedAchievement.type &&
+          editedAchievement.type === 'Egyéni' &&
+          editedAchievement.machine &&
+          editedAchievement.machine.type === 'Súlyzós'
+        "
+      >
         <label for="weight">Súly (kg)</label>
         <p-inputNumber
           [(ngModel)]="editedAchievement.eventCount"
           inputId="integeronly"
           name="weight"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="
+          editedAchievement.type &&
+          editedAchievement.type === 'Egyéni' &&
+          editedAchievement.machine &&
+          editedAchievement.machine.type === 'Súlyzós'
+        "
+      >
         <label for="repetitionCount">Ismétlések száma</label>
         <p-inputNumber
           [(ngModel)]="editedAchievement.repetitionCount"
           inputId="integeronly"
           name="repetitionCount"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="
+          editedAchievement.type &&
+          editedAchievement.type === 'Egyéni' &&
+          editedAchievement.machine &&
+          editedAchievement.machine.type === 'Kardió'
+        "
+      >
         <label for="intensity">Intenzitás (1-10)</label>
         <p-inputNumber
           [(ngModel)]="editedAchievement.intensity"
@@ -98,25 +408,63 @@
           name="intensity"
           [min]="1"
           [max]="10"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="
+          editedAchievement.type &&
+          editedAchievement.type === 'Egyéni' &&
+          editedAchievement.machine &&
+          editedAchievement.machine.type === 'Kardió'
+        "
+      >
         <label for="duration">Időtartam (perc)</label>
         <p-inputNumber
           [(ngModel)]="editedAchievement.duration"
           inputId="integeronly"
           name="duration"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         />
       </div>
-      <div class="field">
+      <div
+        class="field"
+        *ngIf="editedAchievement.type && editedAchievement.type === 'Csoportos'"
+      >
         <label for="typeOfGroupTraining">Csoportos edzés típusa</label>
         <p-dropdown
-          *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
           [options]="groupTrainingTypeList"
           [(ngModel)]="editedAchievement.typeOfGroupTraining"
           name="typeOfGroupTraining"
+          appendTo="body"
+          [disabled]="loggedInUser?.role !== 'ADMIN'"
         >
         </p-dropdown>
+      </div>
+      <div class="field" *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
+        <label for="icon">Ikon</label>
+        <p-fileUpload
+          *ngIf="!editedAchievement.icon"
+          mode="basic"
+          name="picture"
+          accept="image/*"
+          url="http://localhost:3000/image-upload/achievement-icon"
+          chooseIcon="pi pi-upload"
+          chooseLabel="Tallózás"
+          (onUpload)="uploadHandler($event, editedAchievement)"
+          maxFileSize="100000000"
+        >
+        </p-fileUpload>
+        <button
+          *ngIf="editedAchievement.icon"
+          class="btn btn-primary"
+          pButton
+          pRipple
+          (click)="removeIcon(editedAchievement)"
+        >
+          Ikon törlése
+        </button>
       </div>
     </ng-template>
     <ng-template pTemplate="footer">
@@ -135,7 +483,7 @@
         label="Mentés"
         icon="pi pi-check"
         class="p-button-text"
-        [disabled]="!editMachineForm.valid"
+        [disabled]="!editAchievementForm.valid"
         (click)="saveEditedAchievement()"
       ></button>
       <button

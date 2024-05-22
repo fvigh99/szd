@@ -12,9 +12,9 @@ export abstract class DataService<T> extends QueryDataService<T> {
     'Content-Type': 'json; charset=utf-8',
   });
 
-  public fetch(): Observable<T> {
+  public fetch(): Observable<T[]> {
     return this.http
-      .get<T>(`${this.host}/${this.specUrlPart}`)
+      .get<T[]>(`${this.host}/${this.specUrlPart}`)
       .pipe(map((item) => item));
   }
 

@@ -44,53 +44,138 @@
     let-ri="rowIndex"
   >
     <tr>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.monday?.inactive,
+          'training-full':
+            schedule.monday &&
+            schedule.monday?.attendanceCount === schedule.monday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.monday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.monday)">
           {{ schedule.monday?.startTime }} -
           {{ schedule.monday?.endTime }}
-          <span *ngIf="schedule.monday">({{ schedule.monday.type }})</span>
+          <span *ngIf="schedule.monday"
+            >({{ schedule.monday.type }}) [{{
+              schedule.monday?.attendanceCount
+            }}/{{ schedule.monday?.capacity }}]</span
+          >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.tuesday?.inactive,
+          'training-full':
+            schedule.tuesday &&
+            schedule.tuesday?.attendanceCount === schedule.tuesday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.tuesday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.tuesday)">
           {{ schedule.tuesday?.startTime }} -
           {{ schedule.tuesday?.endTime }}
-          <span *ngIf="schedule.tuesday">({{ schedule.tuesday.type }})</span>
+          <span *ngIf="schedule.tuesday"
+            >({{ schedule.tuesday.type }}) [{{
+              schedule.tuesday?.attendanceCount
+            }}/{{ schedule.tuesday?.capacity }}]</span
+          >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.wednesday?.inactive,
+          'training-full':
+            schedule.wednesday &&
+            schedule.wednesday?.attendanceCount ===
+              schedule.wednesday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.wednesday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.wednesday)">
           {{ schedule.wednesday?.startTime }} -
           {{ schedule.wednesday?.endTime }}
           <span *ngIf="schedule.wednesday"
-            >({{ schedule.wednesday.type }})</span
+            >({{ schedule.wednesday.type }}) [{{
+              schedule.wednesday?.attendanceCount
+            }}/{{ schedule.wednesday?.capacity }}]</span
           >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.thursday?.inactive,
+          'training-full':
+            schedule.thursday &&
+            schedule.thursday?.attendanceCount ===
+              schedule.thursday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.thursday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.thursday)">
           {{ schedule.thursday?.startTime }} -
           {{ schedule.thursday?.endTime }}
-          <span *ngIf="schedule.thursday">({{ schedule.thursday.type }})</span>
+          <span *ngIf="schedule.thursday"
+            >({{ schedule.thursday.type }}) [{{
+              schedule.thursday?.attendanceCount
+            }}/{{ schedule.thursday?.capacity }}]</span
+          >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.friday?.inactive,
+          'training-full':
+            schedule.friday &&
+            schedule.friday?.attendanceCount === schedule.friday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.friday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.friday)">
           {{ schedule.friday?.startTime }} - {{ schedule.friday?.endTime }}
-          <span *ngIf="schedule.friday">({{ schedule.friday.type }})</span>
+          <span *ngIf="schedule.friday"
+            >({{ schedule.friday.type }}) [{{
+              schedule.friday?.attendanceCount
+            }}/{{ schedule.friday?.capacity }}]</span
+          >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.saturday?.inactive,
+          'training-full':
+            schedule.saturday &&
+            schedule.saturday?.attendanceCount ===
+              schedule.saturday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.saturday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.saturday)">
           {{ schedule.saturday?.startTime }} -
           {{ schedule.saturday?.endTime }}
-          <span *ngIf="schedule.saturday">({{ schedule.saturday.type }})</span>
+          <span *ngIf="schedule.saturday"
+            >({{ schedule.saturday.type }}) [{{
+              schedule.saturday?.attendanceCount
+            }}/{{ schedule.saturday?.capacity }}]</span
+          >
         </a>
       </td>
-      <td>
+      <td
+        [ngClass]="{
+          'inactive-training': schedule.sunday?.inactive,
+          'training-full':
+            schedule.sunday &&
+            schedule.sunday?.attendanceCount === schedule.sunday?.capacity &&
+            !loggedInUserTrainingIds.includes(schedule.sunday?.id)
+        }"
+      >
         <a (click)="editSchedule(schedule.sunday)">
           {{ schedule.sunday?.startTime }} - {{ schedule.sunday?.endTime }}
-          <span *ngIf="schedule.sunday">({{ schedule.sunday.type }})</span>
+          <span *ngIf="schedule.sunday"
+            >({{ schedule.sunday.type }}) [{{
+              schedule.sunday?.attendanceCount
+            }}/{{ schedule.sunday?.capacity }}]</span
+          >
         </a>
       </td>
     </tr>

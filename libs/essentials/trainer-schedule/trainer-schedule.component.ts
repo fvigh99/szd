@@ -11,7 +11,7 @@ import {
 } from 'libs/model/FcServerModel';
 import { FormsModule } from '@angular/forms';
 import { ScheduleService } from 'libs/data-access/schedule/schedule.service';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, switchMap, tap } from 'rxjs';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -102,11 +102,10 @@ export class TrainerScheduleComponent implements OnInit {
   }
 
   public fetchData() {
-    this.loggedInUserTrainingIds = new Array();
-    this.scheduleService
+    this.displayableScheduleList = this.scheduleService
       .getByTrainerId(this.trainer?.id)
       .pipe(
-        tap((schedules) => {
+        switchMap((schedules) => {
           schedules.forEach((schedule) => {
             schedule.startTime =
               new Date(schedule.start).toLocaleTimeString().split(':')[0] +
@@ -117,12 +116,11 @@ export class TrainerScheduleComponent implements OnInit {
               ':' +
               new Date(schedule.end).toLocaleTimeString().split(':')[1];
           });
-          this.displayableScheduleList =
-            this.scheduleService.generateDisplayableSchedule(schedules);
+          return this.scheduleService.generateDisplayableSchedule(schedules);
         })
-      )
-      .subscribe();
+      );
 
+    this.loggedInUserTrainingIds = new Array();
     this.userInTrainingService
       .getByUserId(this.loggedInUser?.id)
       .subscribe((result) => {
@@ -132,8 +130,6 @@ export class TrainerScheduleComponent implements OnInit {
             this.loggedInUserTrainingIds.push(userInTraining.schedule.id);
           });
         }
-        console.log(this.loggedInUserTrainingIds);
-        console.log(this.loggedInUserTrainings);
       });
   }
 
@@ -145,93 +141,98 @@ export class TrainerScheduleComponent implements OnInit {
       this.loggedInUser &&
       (this.loggedInUser.role === 'ADMIN' || this.loggedInUser.role === 'TAG')
     ) {
-      if (this.loggedInUser && this.loggedInUser.role === 'ADMIN') {
+      if (this.loggedInUser.role === 'ADMIN') {
         this.editSchedule(schedule);
       } else if (
-        this.loggedInUserTrainingIds &&
-        !this.loggedInUserTrainingIds.includes(schedule.id)
+        !schedule.inactive &&
+        (schedule.attendanceCount !== schedule.capacity ||
+          (this.loggedInUserTrainingIds &&
+            this.loggedInUserTrainingIds.includes(schedule.id)))
       ) {
-        this.confirmationService.confirm({
-          message: 'Biztosan jelentkezni szeretne az edzésre?',
-          header: 'Megerősítés',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Igen',
-          rejectLabel: 'Nem',
-          accept: () => {
-            if (
-              this.loggedInUser &&
-              this.loggedInUser.role === 'TAG' &&
-              !this.currentUserPass
-            ) {
-              this.messageService.add({
-                summary: 'Hiba!',
-                severity: 'error',
-                detail: 'Sikertelen jelentkezés! Nincs aktív bérlete!',
-              });
-            } else if (this.loggedInUser && this.loggedInUser.role === 'TAG') {
-              let insufficientPass = false;
-              switch (schedule.type) {
-                case 'yoga':
-                  insufficientPass = !this.currentUserPass?.yoga;
-                  break;
-                case 'kickbox':
-                  insufficientPass = !this.currentUserPass?.kickbox;
-                  break;
-                case 'spinracing':
-                  insufficientPass = !this.currentUserPass?.spinracing;
-                  break;
-                case 'pilates':
-                  insufficientPass = !this.currentUserPass?.pilates;
-                  break;
-              }
-              if (insufficientPass) {
+        if (
+          this.loggedInUserTrainingIds &&
+          !this.loggedInUserTrainingIds.includes(schedule.id)
+        ) {
+          this.confirmationService.confirm({
+            message: 'Biztosan jelentkezni szeretne az edzésre?',
+            header: 'Megerősítés',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Igen',
+            rejectLabel: 'Nem',
+            accept: () => {
+              if (this.loggedInUser.role === 'TAG' && !this.currentUserPass) {
                 this.messageService.add({
                   summary: 'Hiba!',
                   severity: 'error',
-                  detail:
-                    'Sikertelen jelentkezés! Ilyen típusú edzésen nem vehet részt a bérletével!',
+                  detail: 'Sikertelen jelentkezés! Nincs aktív bérlete!',
                 });
-              } else {
-                this.userInTrainingService
-                  .create({ schedule: schedule, user: this.loggedInUser })
-                  .subscribe(() => {
+              } else if (this.loggedInUser.role === 'TAG') {
+                let insufficientPass = false;
+                switch (schedule.type) {
+                  case 'yoga':
+                    insufficientPass = !this.currentUserPass?.yoga;
+                    break;
+                  case 'kickbox':
+                    insufficientPass = !this.currentUserPass?.kickbox;
+                    break;
+                  case 'spinracing':
+                    insufficientPass = !this.currentUserPass?.spinracing;
+                    break;
+                  case 'pilates':
+                    insufficientPass = !this.currentUserPass?.pilates;
+                    break;
+                }
+                if (insufficientPass) {
+                  this.messageService.add({
+                    summary: 'Hiba!',
+                    severity: 'error',
+                    detail:
+                      'Sikertelen jelentkezés! Ilyen típusú edzésen nem vehet részt a bérletével!',
+                  });
+                } else {
+                  this.userInTrainingService
+                    .create({ schedule: schedule, user: this.loggedInUser })
+                    .subscribe(() => {
+                      this.messageService.add({
+                        summary: 'Siker!',
+                        severity: 'success',
+                        detail: 'Sikeres jelentkezés!',
+                      });
+                    })
+                    .add(() => {
+                      this.fetchData();
+                    });
+                }
+              }
+            },
+          });
+        } else {
+          this.confirmationService.confirm({
+            message: 'Biztosan le szeretne jelentkezni az edzésről?',
+            header: 'Megerősítés',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Igen',
+            rejectLabel: 'Nem',
+            accept: () => {
+              this.userInTrainingService
+                .delete(
+                  this.loggedInUserTrainings[
+                    this.loggedInUserTrainingIds.indexOf(schedule.id)
+                  ].id
+                )
+                .subscribe((result) => {
+                  if (result) {
                     this.messageService.add({
-                      summary: 'Siker!',
                       severity: 'success',
-                      detail: 'Sikeres jelentkezés!',
+                      summary: 'Siker!',
+                      detail: 'Sikeresen lejelentkezett az edzésről!',
                     });
                     this.fetchData();
-                  });
-              }
-            }
-          },
-        });
-      } else {
-        this.confirmationService.confirm({
-          message: 'Biztosan le szeretne jelentkezni az edzésről?',
-          header: 'Megerősítés',
-          icon: 'pi pi-exclamation-triangle',
-          acceptLabel: 'Igen',
-          rejectLabel: 'Nem',
-          accept: () => {
-            this.userInTrainingService
-              .delete(
-                this.loggedInUserTrainings[
-                  this.loggedInUserTrainingIds.indexOf(schedule.id)
-                ].id
-              )
-              .subscribe((result) => {
-                if (result) {
-                  this.messageService.add({
-                    severity: 'success',
-                    detail: 'Siker!',
-                    summary: 'Sikeresen lejelentkezett az edzésről!',
-                  });
-                  this.fetchData();
-                }
-              });
-          },
-        });
+                  }
+                });
+            },
+          });
+        }
       }
     }
   }
@@ -248,16 +249,25 @@ export class TrainerScheduleComponent implements OnInit {
   }
 
   public saveNewSchedule(): void {
-    this.scheduleService.create(this.newSchedule).subscribe(() => {
-      this.messageService.add({
-        summary: 'Siker!',
-        severity: 'success',
-        detail: 'Sikeres mentés!',
+    if (this.newSchedule.start < this.newSchedule.end) {
+      this.scheduleService.create(this.newSchedule).subscribe(() => {
+        this.messageService.add({
+          summary: 'Siker!',
+          severity: 'success',
+          detail: 'Sikeres mentés!',
+        });
+        this.fetchData();
       });
-      this.fetchData();
-    });
-    this.newScheduleDialog = false;
-    this.newSchedule = null;
+      this.newScheduleDialog = false;
+      this.newSchedule = null;
+    } else {
+      this.messageService.add({
+        summary: 'Hiba!',
+        severity: 'error',
+        detail:
+          'Sikertelen mentés! Az edzés kezdete nem lehet hamarabb, mint az edzés vége!',
+      });
+    }
   }
 
   public editSchedule(schedule: ScheduleWithTime) {
@@ -273,14 +283,23 @@ export class TrainerScheduleComponent implements OnInit {
     this.editScheduleDialog = false;
   }
   public saveEditedSchedule(): void {
-    this.scheduleService.save(this.editedSchedule).subscribe(() => {
-      this.messageService.add({
-        summary: 'Siker!',
-        severity: 'success',
-        detail: 'Sikeres módosítás!',
+    if (this.editedSchedule.start < this.editedSchedule.end) {
+      this.scheduleService.save(this.editedSchedule).subscribe(() => {
+        this.messageService.add({
+          summary: 'Siker!',
+          severity: 'success',
+          detail: 'Sikeres módosítás!',
+        });
+        this.fetchData();
       });
-      this.fetchData();
-    });
-    this.editScheduleDialog = false;
+      this.editScheduleDialog = false;
+    } else {
+      this.messageService.add({
+        summary: 'Hiba!',
+        severity: 'error',
+        detail:
+          'Sikertelen módosítás! Az edzés kezdete nem lehet hamarabb, mint az edzés vége!',
+      });
+    }
   }
 }

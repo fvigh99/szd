@@ -25,7 +25,9 @@
     </div>
 
     <div class="pb-2">
-      Zöld = Már jelentkezett az edzésre <br />
+      <span *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
+        Zöld = Már jelentkezett az edzésre <br />
+      </span>
       Piros = Az edzés jelenleg inaktív <br />
       Sárga = Az edzésre nincs szabad hely <br />
     </div>
@@ -57,91 +59,160 @@
           <td
             [ngClass]="{
               'inactive-training': schedule.monday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.monday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.monday?.id
+              ),
+              'training-full':
+                schedule.monday &&
+                schedule.monday?.attendanceCount ===
+                  schedule.monday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.monday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.monday)">
               {{ schedule.monday?.startTime }} -
               {{ schedule.monday?.endTime }}
-              <span *ngIf="schedule.monday">({{ schedule.monday.type }})</span>
+              <span *ngIf="schedule.monday"
+                >({{ schedule.monday.type }}) [{{
+                  schedule.monday?.attendanceCount
+                }}/{{ schedule.monday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.tuesday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.tuesday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.tuesday?.id
+              ),
+              'training-full':
+                schedule.tuesday &&
+                schedule.tuesday?.attendanceCount ===
+                  schedule.tuesday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.tuesday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.tuesday)">
               {{ schedule.tuesday?.startTime }} -
               {{ schedule.tuesday?.endTime }}
               <span *ngIf="schedule.tuesday"
-                >({{ schedule.tuesday.type }})</span
-              >
+                >({{ schedule.tuesday.type }}) [{{
+                  schedule.tuesday?.attendanceCount
+                }}/{{ schedule.tuesday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.wednesday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.wednesday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.wednesday?.id
+              ),
+              'training-full':
+                schedule.wednesday &&
+                schedule.wednesday?.attendanceCount ===
+                  schedule.wednesday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.wednesday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.wednesday)">
               {{ schedule.wednesday?.startTime }} -
               {{ schedule.wednesday?.endTime }}
               <span *ngIf="schedule.wednesday"
-                >({{ schedule.wednesday.type }})</span
-              >
+                >({{ schedule.wednesday.type }}) [{{
+                  schedule.wednesday?.attendanceCount
+                }}/{{ schedule.wednesday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.thursday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.thursday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.thursday?.id
+              ),
+              'training-full':
+                schedule.thursday &&
+                schedule.thursday?.attendanceCount ===
+                  schedule.thursday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.thursday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.thursday)">
               {{ schedule.thursday?.startTime }} -
               {{ schedule.thursday?.endTime }}
               <span *ngIf="schedule.thursday"
-                >({{ schedule.thursday.type }})</span
-              >
+                >({{ schedule.thursday.type }}) [{{
+                  schedule.thursday?.attendanceCount
+                }}/{{ schedule.thursday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.friday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.friday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.friday?.id
+              ),
+              'training-full':
+                schedule.friday &&
+                schedule.friday?.attendanceCount ===
+                  schedule.friday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.friday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.friday)">
               {{ schedule.friday?.startTime }} - {{ schedule.friday?.endTime }}
-              <span *ngIf="schedule.friday">({{ schedule.friday.type }})</span>
+              <span *ngIf="schedule.friday"
+                >({{ schedule.friday.type }}) [{{
+                  schedule.friday?.attendanceCount
+                }}/{{ schedule.friday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.saturday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.saturday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.saturday?.id
+              ),
+              'training-full':
+                schedule.saturday &&
+                schedule.saturday?.attendanceCount ===
+                  schedule.saturday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.saturday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.saturday)">
               {{ schedule.saturday?.startTime }} -
               {{ schedule.saturday?.endTime }}
               <span *ngIf="schedule.saturday"
-                >({{ schedule.saturday.type }})</span
-              >
+                >({{ schedule.saturday.type }}) [{{
+                  schedule.saturday?.attendanceCount
+                }}/{{ schedule.saturday?.capacity }}]
+              </span>
             </a>
           </td>
           <td
             [ngClass]="{
               'inactive-training': schedule.sunday?.inactive,
-              'user-in-training': loggedInUserTrainingIds.includes(schedule.sunday?.id),
+              'user-in-training': loggedInUserTrainingIds.includes(
+                schedule.sunday?.id
+              ),
+              'training-full':
+                schedule.sunday &&
+                schedule.sunday?.attendanceCount ===
+                  schedule.sunday?.capacity &&
+                !loggedInUserTrainingIds.includes(schedule.sunday?.id)
             }"
           >
             <a (click)="trainingClicked(schedule.sunday)">
               {{ schedule.sunday?.startTime }} - {{ schedule.sunday?.endTime }}
-              <span *ngIf="schedule.sunday">({{ schedule.sunday.type }})</span>
+              <span *ngIf="schedule.sunday"
+                >({{ schedule.sunday.type }}) [{{
+                  schedule.sunday?.attendanceCount
+                }}/{{ schedule.sunday?.capacity }}]
+              </span>
             </a>
           </td>
         </tr>
@@ -168,6 +239,7 @@
       [modal]="true"
       styleClass="p-fluid"
       [contentStyle]="{ overflow: 'visible' }"
+      [draggable]="false"
     >
       <ng-template pTemplate="content">
         <div class="field">
@@ -256,6 +328,7 @@
       [modal]="true"
       styleClass="p-fluid"
       [contentStyle]="{ overflow: 'visible' }"
+      [draggable]="false"
     >
       <ng-template pTemplate="content">
         <div class="field">

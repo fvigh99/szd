@@ -20,6 +20,7 @@ import {
 import { MachineService } from 'libs/data-access/machine/machine.service';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { DropdownModule } from 'primeng/dropdown';
 
 @Component({
   selector: 'fc-previous-exercises',
@@ -39,6 +40,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
     CalendarModule,
     AutoCompleteModule,
     InputNumberModule,
+    DropdownModule,
   ],
   templateUrl: './previous-exercises.component.html',
   styleUrl: './previous-exercises.component.scss',
@@ -52,6 +54,12 @@ export class PreviousExercisesComponent implements OnInit {
   public filteredMachines: Machine[] | undefined;
   public loggedInUser: User;
   public maxDate: Date | undefined;
+  public groupTrainingTypeList: Array<string> = [
+    'kickbox',
+    'spinracing',
+    'pilates',
+    'yoga',
+  ];
   constructor(
     private exerciseService: ExerciseService,
     private messageService: MessageService,
@@ -60,7 +68,6 @@ export class PreviousExercisesComponent implements OnInit {
     private confirmationService: ConfirmationService
   ) {}
   ngOnInit(): void {
-    /* this.loggedInUser = this.accountService.userValue.user_object; */
     this.loggedInUser = this.accountService.userValue?.user_object;
     this.fetchData();
     this.machineService.fetch().subscribe((result) => {
@@ -96,51 +103,29 @@ export class PreviousExercisesComponent implements OnInit {
   }
 
   public saveNewExercise() {
-    if (
-      (this.newExercise.weight &&
-        this.newExercise.count &&
-        !this.newExercise.intensity &&
-        !this.newExercise.duration) ||
-      (this.newExercise.intensity &&
-        this.newExercise.duration &&
-        !this.newExercise.weight &&
-        !this.newExercise.count)
-    ) {
-      this.newExercise.user = this.loggedInUser;
-      this.newExercise.machine = this.selectedMachine?.id
-        ? this.selectedMachine
-        : null;
-      console.log(this.newExercise);
-      this.exerciseService.create(this.newExercise).subscribe((result) => {
-        if (result) {
-          this.messageService.add({
-            severity: 'success',
-            detail: 'Siker!',
-            summary: 'Sikeres mentés!',
-          });
-          this.newExerciseDialog = false;
-          this.fetchData();
-        } else {
-          this.messageService.add({
-            severity: 'error',
-            detail: 'Hiba!',
-            summary: 'Nem sikerült a mentés!',
-          });
-          this.newExercise = {
-            machine: {},
-          };
-          this.selectedMachine = {};
-        }
-      });
-    } else {
-      this.messageService.add({
-        severity: 'error',
-        detail:
-          'Hibás adatok! A következő adatokpárokból egyet, és csak egyet kell megadnia: súly-ismétlés / intenzitás-időtartam!',
-        summary: 'Hiba',
-        life: 8000,
-      });
-    }
+    this.newExercise.user = this.loggedInUser;
+    this.newExercise.date = new Date(this.newExercise.date);
+    this.exerciseService.create(this.newExercise).subscribe((result) => {
+      if (result) {
+        this.messageService.add({
+          severity: 'success',
+          detail: 'Siker!',
+          summary: 'Sikeres mentés!',
+        });
+        this.newExerciseDialog = false;
+        this.fetchData();
+      } else {
+        this.messageService.add({
+          severity: 'error',
+          detail: 'Hiba!',
+          summary: 'Nem sikerült a mentés!',
+        });
+        this.newExercise = {
+          machine: {},
+        };
+        this.selectedMachine = {};
+      }
+    });
   }
 
   public hideNewDialog() {
@@ -175,7 +160,17 @@ export class PreviousExercisesComponent implements OnInit {
     });
   }
 
-  public machineChanged() {
-    this.newExercise = {};
+  public typeChanged(value: string) {
+    this.newExercise.type = value;
+    if (value === 'Egyéni') {
+      this.newExercise.groupTrainingType = null;
+      this.newExercise.machine = {};
+    } else {
+      this.newExercise.machine = null;
+      this.newExercise.duration = null;
+      this.newExercise.intensity = null;
+      this.newExercise.weight = null;
+      this.newExercise.count = null;
+    }
   }
 }

@@ -41,7 +41,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
   styleUrl: './user-list.component.scss',
 })
 export class UserListComponent implements OnInit {
-  public userList: Observable<User>;
+  public userList: Observable<User[]>;
   public passList: any;
   public filteredPasses: Pass[];
   public roleList: string[] = ['TAG', 'EDZO', 'ADMIN'];
@@ -108,7 +108,6 @@ export class UserListComponent implements OnInit {
 
   public uploadHandler(event: FileUploadEvent, user: User) {
     let result = event.originalEvent as HttpResponse<FileUploadResult>;
-    console.log(result.body.data);
     user.picture = result.body.data;
     this.messageService.add({
       severity: 'success',

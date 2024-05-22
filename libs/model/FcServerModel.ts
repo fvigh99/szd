@@ -42,6 +42,7 @@ export interface Schedule extends EntityWithId {
   end?: Date;
   type?: string;
   capacity?: number;
+  attendanceCount?: number;
   inactive?: boolean;
 }
 
@@ -67,11 +68,17 @@ export interface UserInTraining extends EntityWithId {
 
 export interface PersonalGoal extends EntityWithId {
   user?: User;
+  startWeight?: number;
+  currentWeight?: number;
+  goalWeight?: number;
+  height?: number;
 }
 
 export interface Exercise extends EntityWithId {
   machine?: Machine;
   user?: User;
+  type?: string;
+  groupTrainingType?: string;
   weight?: number;
   count?: number;
   intensity?: number;

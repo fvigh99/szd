@@ -8,6 +8,7 @@ import {
   Schedule,
   ScheduleWithTime,
   User,
+  UserInTraining,
 } from 'libs/model/FcServerModel';
 import { Observable, switchMap, tap } from 'rxjs';
 import { TableModule } from 'primeng/table';
@@ -21,6 +22,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { CalendarModule } from 'primeng/calendar';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
+import { UserInTrainingService } from 'libs/data-access/user-in-training/user-in-training.service';
 
 @Component({
   selector: 'fc-my-schedule',
@@ -52,6 +54,8 @@ export class MyScheduleComponent implements OnInit {
   public editScheduleDialog = false;
   public editedSchedule: Schedule;
   public displayableScheduleList: Observable<DisplayableSchedule[]>;
+  public loggedInUserTrainingIds: number[] = new Array();
+  public loggedInUserTrainings: UserInTraining[] = new Array();
   public dayList: Array<Day> = [
     { id: 0, name: 'Hétfő' },
     { id: 1, name: 'Kedd' },
@@ -70,7 +74,8 @@ export class MyScheduleComponent implements OnInit {
   constructor(
     private scheduleService: ScheduleService,
     private accountService: AccountService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private userInTrainingService: UserInTrainingService
   ) {}
 
   ngOnInit(): void {
@@ -79,10 +84,10 @@ export class MyScheduleComponent implements OnInit {
   }
 
   public fetchData() {
-    this.scheduleService
+    this.displayableScheduleList = this.scheduleService
       .getByTrainerId(this.loggedInUser?.id)
       .pipe(
-        tap((schedules) => {
+        switchMap((schedules) => {
           schedules.forEach((schedule) => {
             schedule.startTime =
               new Date(schedule.start).toLocaleTimeString().split(':')[0] +
@@ -93,11 +98,21 @@ export class MyScheduleComponent implements OnInit {
               ':' +
               new Date(schedule.end).toLocaleTimeString().split(':')[1];
           });
-          this.displayableScheduleList =
-            this.scheduleService.generateDisplayableSchedule(schedules);
+          return this.scheduleService.generateDisplayableSchedule(schedules);
         })
-      )
-      .subscribe();
+      );
+
+    this.loggedInUserTrainingIds = new Array();
+    this.userInTrainingService
+      .getByUserId(this.loggedInUser?.id)
+      .subscribe((result) => {
+        if (result) {
+          this.loggedInUserTrainings = result;
+          result.forEach((userInTraining) => {
+            this.loggedInUserTrainingIds.push(userInTraining.schedule.id);
+          });
+        }
+      });
   }
 
   public openNew(): void {
@@ -135,7 +150,9 @@ export class MyScheduleComponent implements OnInit {
 
   public hideEditedDialog(): void {
     this.editScheduleDialog = false;
+    this.fetchData();
   }
+
   public saveEditedSchedule(): void {
     this.scheduleService.save(this.editedSchedule).subscribe(() => {
       this.messageService.add({

@@ -3,7 +3,7 @@ import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { CarouselModule } from 'primeng/carousel';
 import { MachineService } from 'libs/data-access/machine/machine.service';
 import { Observable } from 'rxjs';
-import { Machine, User } from 'libs/model/FcServerModel';
+import { FileUploadResult, Machine, User } from 'libs/model/FcServerModel';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -15,6 +15,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
+import { HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'fc-machine-list',
@@ -33,13 +35,14 @@ import { DropdownModule } from 'primeng/dropdown';
     InputTextModule,
     ConfirmDialogModule,
     DropdownModule,
+    FileUploadModule,
   ],
   templateUrl: './machine-list.component.html',
   styleUrl: './machine-list.component.scss',
 })
 export class MachineListComponent implements OnInit {
   public loggedInUser: User;
-  public machineList: Observable<Machine>;
+  public machineList: Observable<Machine[]>;
   public newMachineDialog = false;
   public editMachineDialog = false;
   public newMachine: Machine;
@@ -55,7 +58,6 @@ export class MachineListComponent implements OnInit {
 
   ngOnInit(): void {
     this.fetchData();
-    /* this.loggedInUser = this.accountService.userValue?.user_object; */
     this.loggedInUser = this.accountService.userValue?.user_object;
   }
 
@@ -79,24 +81,23 @@ export class MachineListComponent implements OnInit {
   }
 
   public saveNewMachine() {
-    this.machineService.create(this.newMachine).subscribe((result) => {
-      if (result) {
+    if (this.newMachine.picture) {
+      this.machineService.create(this.newMachine).subscribe((result) => {
         this.messageService.add({
           severity: 'success',
-          detail: 'Siker!',
-          summary: 'Sikeres mentés!',
+          summary: 'Siker!',
+          detail: 'Sikeres mentés!',
         });
         this.newMachineDialog = false;
         this.fetchData();
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          detail: 'Hiba!',
-          summary: 'Nem sikerült a mentés!',
-        });
-        this.newMachine = {};
-      }
-    });
+      });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'Sikertelen mentés! Nem töltött fel képet a géphez!',
+      });
+    }
   }
 
   public hideEditedDialog() {
@@ -105,23 +106,23 @@ export class MachineListComponent implements OnInit {
   }
 
   public saveEditedMachine() {
-    this.machineService.save(this.editedMachine).subscribe((result) => {
-      if (result) {
+    if (this.editedMachine.picture) {
+      this.machineService.save(this.editedMachine).subscribe((result) => {
         this.messageService.add({
           severity: 'success',
-          detail: 'Siker!',
-          summary: 'Sikeres mentés!',
+          summary: 'Siker!',
+          detail: 'Sikeres mentés!',
         });
         this.fetchData();
         this.editMachineDialog = false;
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          detail: 'Hiba!',
-          summary: 'Nem sikerült a mentés!',
-        });
-      }
-    });
+      });
+    } else {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'Sikertelen mentés! Nem töltött fel képet a géphez!',
+      });
+    }
   }
 
   public deleteMachine() {
@@ -135,22 +136,38 @@ export class MachineListComponent implements OnInit {
         this.machineService
           .delete(this.editedMachine.id)
           .subscribe((result) => {
-            if (result) {
-              this.messageService.add({
-                severity: 'success',
-                detail: 'Siker!',
-                summary: 'Sikeres törlés!',
-              });
-              this.editMachineDialog = false;
-              this.fetchData();
-            } else {
-              this.messageService.add({
-                severity: 'error',
-                detail: 'Hiba!',
-                summary: 'Nem sikerült a törlés!',
-              });
-            }
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Siker!',
+              detail: 'Sikeres törlés!',
+            });
+            this.editMachineDialog = false;
+            this.fetchData();
           });
+      },
+    });
+  }
+
+  public uploadHandler(event: FileUploadEvent, machine: Machine) {
+    let result = event.originalEvent as HttpResponse<FileUploadResult>;
+    machine.picture = result.body.data;
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Siker!',
+      detail: 'Kép sikeresen feltöltve!',
+    });
+  }
+
+  public removePicture(machine: Machine) {
+    this.confirmationService.confirm({
+      message:
+        'Biztosan el szeretné távolítani a képet? Amennyiben igen, töltsön fel utána újat!',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        machine.picture = null;
       },
     });
   }

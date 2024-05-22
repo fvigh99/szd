@@ -1,4 +1,3 @@
-/* eslint-disable */
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DataService } from 'libs/model/DataService';
@@ -12,5 +11,12 @@ export class AchievementService extends DataService<Achievement> {
     super();
     this.http = http;
     this.specUrlPart = 'achievements';
+  }
+
+  public save(achievement: Achievement) {
+    return this.http.put(
+      `${this.host}/${this.specUrlPart}/${achievement.id}`,
+      achievement
+    );
   }
 }

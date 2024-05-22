@@ -1,0 +1,189 @@
+<div class="pl-2 pb-3">
+  <h1>Személyes célom</h1>
+</div>
+
+<div class="pl-2 pb-3">
+  <span>
+    Ezen az oldalon érheti el a kitűzőtt célját. Lehetősége van új célt kitűzni,
+    vagy módosítani az aktuálisat.
+  </span>
+</div>
+
+<ng-container *ngIf="!ownPersonalGoal; else showPersonalGoal">
+  <button
+    pButton
+    pRipple
+    label="Új cél kitűzése"
+    icon="pi pi-plus"
+    class="p-button-success mr-2"
+    (click)="showNewPersonalGoal()"
+  ></button>
+
+  <form #newPersonalGoalForm="ngForm">
+    <p-dialog
+      [visible]="newPersonalGoalDialog"
+      [style]="{ width: '450px' }"
+      header="Új cél hozzáadása"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="startWeight">Jelenlegi súlya (kg)</label>
+          <p-inputNumber
+            name="startWeight"
+            [(ngModel)]="newPersonalGoal.startWeight"
+            [min]="25"
+            [max]="500"
+            required
+          >
+          </p-inputNumber>
+        </div>
+        <div class="field">
+          <label for="goalWeight">Elérni kívánt súly (kg)</label>
+          <p-inputNumber
+            name="goalWeight"
+            [(ngModel)]="newPersonalGoal.goalWeight"
+            [min]="25"
+            [max]="500"
+            required
+          >
+          </p-inputNumber>
+        </div>
+        <div class="field">
+          <label for="height">Magassága (cm)</label>
+          <p-inputNumber
+            name="height"
+            [(ngModel)]="newPersonalGoal.height"
+            [min]="40"
+            [max]="250"
+            required
+          >
+          </p-inputNumber>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Bezárás"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="hideNewDialog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Mentés"
+          icon="pi pi-check"
+          class="p-button-text"
+          [disabled]="!newPersonalGoalForm.valid"
+          (click)="saveNewPersonalGoal()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+  </form>
+</ng-container>
+
+<ng-template #showPersonalGoal>
+  <button
+    pButton
+    pRipple
+    label="Cél módosítása"
+    icon="pi pi-plus"
+    class="p-button-success mr-2 ml-2"
+    (click)="showEditPersonalGoal()"
+  ></button>
+
+  <form #editPersonalGoalForm="ngForm">
+    <p-dialog
+      [visible]="editPersonalGoalDialog"
+      [style]="{ width: '450px' }"
+      header="Cél módosítása"
+      [modal]="true"
+      styleClass="p-fluid"
+    >
+      <ng-template pTemplate="content">
+        <div class="field">
+          <label for="startWeight">Kezdeti súlya (kg)</label>
+          <p-inputNumber
+            name="startWeight"
+            [(ngModel)]="ownPersonalGoal.startWeight"
+            [min]="25"
+            [max]="500"
+            required
+            disabled
+          >
+          </p-inputNumber>
+        </div>
+        <div class="field">
+          <label for="currentWeight">Jelenlegi súlya (kg)</label>
+          <p-inputNumber
+            name="currentWeight"
+            [(ngModel)]="ownPersonalGoal.currentWeight"
+            [min]="25"
+            [max]="500"
+            required
+          >
+          </p-inputNumber>
+        </div>
+        <div class="field">
+          <label for="goalWeight">Elérni kívánt súly (kg)</label>
+          <p-inputNumber
+            name="goalWeight"
+            [(ngModel)]="ownPersonalGoal.goalWeight"
+            [min]="25"
+            [max]="500"
+            required
+          >
+          </p-inputNumber>
+        </div>
+        <div class="field">
+          <label for="height">Magassága (cm)</label>
+          <p-inputNumber
+            name="height"
+            [(ngModel)]="ownPersonalGoal.height"
+            [min]="40"
+            [max]="250"
+            required
+          >
+          </p-inputNumber>
+        </div>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <button
+          pButton
+          pRipple
+          label="Bezárás"
+          icon="pi pi-times"
+          class="p-button-text"
+          (click)="hideEditDialog()"
+        ></button>
+        <button
+          pButton
+          pRipple
+          label="Mentés"
+          icon="pi pi-check"
+          class="p-button-text"
+          [disabled]="!editPersonalGoalForm.valid"
+          (click)="saveEditedPersonalGoal()"
+        ></button>
+      </ng-template>
+    </p-dialog>
+  </form>
+  <div class="card pl-2">
+    <h4>Kezdeti súly: {{ ownPersonalGoal?.startWeight }} kg</h4>
+    <h4>Aktuális súly: {{ ownPersonalGoal?.currentWeight }} kg</h4>
+    <h4>Elérni kívánt súly: {{ ownPersonalGoal?.goalWeight }} kg</h4>
+    <h4>Testmagasság: {{ ownPersonalGoal?.height }} cm</h4>
+  </div>
+
+  <button
+    pButton
+    pRipple
+    label="Edzésterv letöltése"
+    icon="pi pi-download"
+    class="p-button-text"
+    (click)="downloadExerciseSuggestion()"
+  ></button>
+</ng-template>

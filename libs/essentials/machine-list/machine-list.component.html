@@ -27,7 +27,7 @@
   <p-carousel
     [value]="machineList | async"
     [numVisible]="3"
-    [numScroll]="3"
+    [numScroll]="1"
     [circular]="false"
   >
     <ng-template let-machine pTemplate="item">
@@ -94,16 +94,28 @@
         </p-dropdown>
       </div>
       <div class="field">
-        <label for="picture">Kép linkje</label>
-        <textarea
-          id="picture"
+        <label for="picture">Kép</label>
+        <p-fileUpload
+          *ngIf="!newMachine.picture"
+          mode="basic"
           name="picture"
-          pInputTextarea
-          [(ngModel)]="newMachine.picture"
-          required
-          rows="3"
-          cols="20"
-        ></textarea>
+          accept="image/*"
+          url="http://localhost:3000/image-upload/machine-picture"
+          chooseIcon="pi pi-upload"
+          chooseLabel="Tallózás"
+          (onUpload)="uploadHandler($event, newMachine)"
+          maxFileSize="100000000"
+        >
+        </p-fileUpload>
+        <button
+          *ngIf="newMachine.picture"
+          class="btn btn-primary"
+          pButton
+          pRipple
+          (click)="removePicture(newMachine)"
+        >
+          Kép törlése
+        </button>
       </div>
     </ng-template>
     <ng-template pTemplate="footer">
@@ -190,17 +202,28 @@
       </div>
       <ng-container *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
         <div class="field">
-          <label for="picture">Kép linkje</label>
-          <textarea
-            id="picture"
+          <label for="picture">Kép</label>
+          <p-fileUpload
+            *ngIf="!editedMachine.picture"
+            mode="basic"
             name="picture"
-            pInputTextarea
-            [(ngModel)]="editedMachine.picture"
-            required
-            rows="3"
-            cols="20"
-            [disabled]="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
-          ></textarea>
+            accept="image/*"
+            url="http://localhost:3000/image-upload/machine-picture"
+            chooseIcon="pi pi-upload"
+            chooseLabel="Tallózás"
+            (onUpload)="uploadHandler($event, editedMachine)"
+            maxFileSize="100000000"
+          >
+          </p-fileUpload>
+          <button
+            *ngIf="editedMachine.picture"
+            class="btn btn-primary"
+            pButton
+            pRipple
+            (click)="removePicture(editedMachine)"
+          >
+            Kép törlése
+          </button>
         </div>
       </ng-container>
     </ng-template>

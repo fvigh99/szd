@@ -85,13 +85,20 @@ export class TabmenuComponent implements OnInit {
         title: 'achievements',
         label:
           this.loggedInUser && this.loggedInUser?.role === 'TAG'
-            ? 'Teljesítményeim'
-            : 'Teljesítmények',
+            ? 'Kitűzőim'
+            : 'Kitűzők',
         disabled: this.login || this.loading,
         visible:
           this.loggedInUser?.role === 'TAG' ||
           this.loggedInUser?.role === 'ADMIN',
         command: () => this.navigate('achievements'),
+      },
+      {
+        title: 'personal-goals',
+        label: 'Céljaim',
+        disabled: this.login || this.loading,
+        visible: this.loggedInUser?.role === 'TAG',
+        command: () => this.navigate('personal-goals'),
       },
       {
         title: 'user-list',
