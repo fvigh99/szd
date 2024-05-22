@@ -54,6 +54,7 @@ export class PreviousExercisesComponent implements OnInit {
   public filteredMachines: Machine[] | undefined;
   public loggedInUser: User;
   public maxDate: Date | undefined;
+  public today = new Date();
   public groupTrainingTypeList: Array<string> = [
     'kickbox',
     'spinracing',
@@ -71,7 +72,7 @@ export class PreviousExercisesComponent implements OnInit {
     this.loggedInUser = this.accountService.userValue?.user_object;
     this.fetchData();
     this.machineService.fetch().subscribe((result) => {
-      this.machineList = result as Machine[];
+      this.machineList = result;
     });
   }
 
