@@ -413,6 +413,14 @@
           [disabled]="!editScheduleForm.valid"
           (click)="saveEditedSchedule()"
         ></button>
+        <button
+        pButton
+        pRipple
+        label="Törlés"
+        icon="pi pi-trash"
+        class="p-button-text"
+        (click)="deleteSchedule()"
+      ></button>
       </ng-template>
     </p-dialog>
   </form>

@@ -302,4 +302,16 @@ export class TrainerScheduleComponent implements OnInit {
       });
     }
   }
+
+  public deleteSchedule(): void {
+    this.scheduleService.delete(this.editedSchedule.id).subscribe(() => {
+      this.messageService.add({
+        summary: 'Siker!',
+        severity: 'success',
+        detail: 'Sikeres törlés!',
+      })
+      this.editScheduleDialog = false;
+      this.fetchData();
+    })
+  }
 }

@@ -99,6 +99,7 @@ export class PreviousExercisesComponent implements OnInit {
   public openNew() {
     this.newExercise = {
       machine: {},
+      date: new Date()
     };
     this.newExerciseDialog = true;
   }
@@ -159,6 +160,14 @@ export class PreviousExercisesComponent implements OnInit {
           });
       },
     });
+  }
+
+  public machineChanged(value: Machine) {
+    if (value) {
+      if (value.type !== this.newExercise.machine?.type) {
+        this.newExercise.machine = value;
+      }
+    }
   }
 
   public typeChanged(value: string) {

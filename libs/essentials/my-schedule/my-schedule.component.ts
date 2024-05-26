@@ -165,6 +165,14 @@ export class MyScheduleComponent implements OnInit {
     this.editScheduleDialog = false;
   }
   public deleteSchedule(): void {
-    this.editScheduleDialog = false;
+    this.scheduleService.delete(this.editedSchedule.id).subscribe(() => {
+      this.messageService.add({
+        summary: 'Siker!',
+        severity: 'success',
+        detail: 'Sikeres törlés!',
+      })
+      this.editScheduleDialog = false;
+      this.fetchData();
+    })
   }
 }
