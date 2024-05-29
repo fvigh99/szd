@@ -8,7 +8,6 @@
 
 <div class="card">
   <form #form="ngForm">
-    <p-toast></p-toast>
     <p-toolbar
       styleClass="mb-4 gap-2"
       *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
@@ -31,7 +30,7 @@
       <ng-template pTemplate="header">
         <tr>
           <th>Megnevezés</th>
-          <th>Ár</th>
+          <th>Ár (HUF)</th>
           <th>Napi belépési limit</th>
           <th>Heti belépési limit</th>
           <th>Szauna</th>
@@ -40,6 +39,7 @@
           <th>Pilates</th>
           <th>Yoga</th>
           <th></th>
+          <th *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"></th>
         </tr>
       </ng-template>
 
@@ -84,10 +84,13 @@
                   currency="HUF"
                   locale="hu-HU"
                   name="price"
+                  inputId="integeronly"
                 />
               </ng-template>
               <ng-template pTemplate="output">
-                <span> {{ pass.price }} HUF </span>
+                <span>
+                  {{ pass.price | currency : ' ' : 'symbol' : '1.0' }}
+                </span>
               </ng-template>
             </p-cellEditor>
           </td>
@@ -277,7 +280,6 @@
         <input
           type="text"
           pInputText
-          id="type"
           name="type"
           [(ngModel)]="newPass.type"
           required
@@ -288,10 +290,10 @@
         <label for="price">Ár</label>
         <p-inputNumber
           [(ngModel)]="newPass.price"
-          mode="currency"
-          currency="HUF"
-          locale="hu-HU"
+          inputId="integeronly"
+          suffix=" Ft"
           name="price"
+          [min]="1"
         />
       </div>
       <div class="field">

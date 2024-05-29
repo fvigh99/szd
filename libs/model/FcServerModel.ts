@@ -33,6 +33,7 @@ export interface Machine extends EntityWithId {
   summary?: string;
   picture?: string;
   type?: string;
+  flag?: string;
 }
 
 export interface Schedule extends EntityWithId {
@@ -86,6 +87,10 @@ export interface Exercise extends EntityWithId {
   date?: Date;
 }
 
+export interface ExerciseWithAchievement extends Exercise {
+  achievement?: Achievement;
+}
+
 export interface Pass extends EntityWithId {
   sauna?: boolean;
   spinracing?: boolean;
@@ -101,7 +106,6 @@ export interface Pass extends EntityWithId {
 export interface EarnedAchievement extends EntityWithId {
   user?: User;
   achievement?: Achievement;
-  date?: Date;
 }
 
 export interface GroupExercise extends EntityWithId {

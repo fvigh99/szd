@@ -6,8 +6,6 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 export abstract class DataService<T> extends QueryDataService<T> {
   protected http: HttpClient;
   protected specUrlPart: string;
-  protected searchedInstance: string;
-  private emptyInstance: T;
   protected headers = new HttpHeaders({
     'Content-Type': 'json; charset=utf-8',
   });
@@ -24,8 +22,8 @@ export abstract class DataService<T> extends QueryDataService<T> {
       .pipe(map((item) => item));
   }
 
-  public create(element: T) {
-    return this.http.post(`${this.host}/${this.specUrlPart}`, element);
+  public create(element: T): Observable<T> {
+    return this.http.post<T>(`${this.host}/${this.specUrlPart}`, element);
   }
 
   public delete(id: number): Observable<T> {

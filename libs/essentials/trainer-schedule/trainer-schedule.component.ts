@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
+import { AsyncPipe, CommonModule, NgFor, NgIf } from '@angular/common';
 import {
   Day,
   DisplayableSchedule,
@@ -48,6 +48,7 @@ import { UserInTrainingService } from 'libs/data-access/user-in-training/user-in
     InputNumberModule,
     CalendarModule,
     DropdownModule,
+    NgFor,
   ],
   templateUrl: './trainer-schedule.component.html',
   styleUrl: './trainer-schedule.component.scss',
@@ -55,7 +56,7 @@ import { UserInTrainingService } from 'libs/data-access/user-in-training/user-in
 export class TrainerScheduleComponent implements OnInit {
   @Input() public trainer: User;
   @Output() public dialogClosed: EventEmitter<boolean> = new EventEmitter();
-  public scheduleList: Observable<Schedule>;
+  public scheduleList: Schedule[];
   public dialogVisible = true;
   public loggedInUser: User;
   public newScheduleDialog = false;
@@ -67,6 +68,8 @@ export class TrainerScheduleComponent implements OnInit {
   public currentUserCountInTraining: number;
   public loggedInUserTrainingIds: number[] = new Array();
   public loggedInUserTrainings: UserInTraining[] = new Array();
+  public usersInTrainingDialog = false;
+  public usersInTrainingForSchedule: UserInTraining[] = new Array();
   public dayList: Array<Day> = [
     { id: 0, name: 'Hétfő' },
     { id: 1, name: 'Kedd' },
@@ -106,6 +109,25 @@ export class TrainerScheduleComponent implements OnInit {
       .getByTrainerId(this.trainer?.id)
       .pipe(
         switchMap((schedules) => {
+          this.scheduleList = schedules;
+          this.scheduleList.map((schedule) => {
+            schedule.start = new Date(schedule.start);
+            schedule.end = new Date(schedule.end);
+            schedule.start = new Date(
+              0,
+              0,
+              0,
+              schedule.start.getHours(),
+              schedule.start.getMinutes()
+            );
+            schedule.end = new Date(
+              0,
+              0,
+              0,
+              schedule.end.getHours(),
+              schedule.end.getMinutes()
+            );
+          });
           schedules.forEach((schedule) => {
             schedule.startTime =
               new Date(schedule.start).toLocaleTimeString().split(':')[0] +
@@ -120,17 +142,41 @@ export class TrainerScheduleComponent implements OnInit {
         })
       );
 
-    this.loggedInUserTrainingIds = new Array();
-    this.userInTrainingService
-      .getByUserId(this.loggedInUser?.id)
-      .subscribe((result) => {
-        if (result) {
-          this.loggedInUserTrainings = result;
-          result.forEach((userInTraining) => {
-            this.loggedInUserTrainingIds.push(userInTraining.schedule.id);
-          });
-        }
-      });
+    if (this.loggedInUser) {
+      this.loggedInUserTrainingIds = new Array();
+      this.userInTrainingService
+        .getByUserId(this.loggedInUser?.id)
+        .subscribe((result) => {
+          if (result) {
+            this.loggedInUserTrainings = result;
+            this.loggedInUserTrainings.map((userInTraining) => {
+              userInTraining.schedule.start = new Date(
+                userInTraining.schedule.start
+              );
+              userInTraining.schedule.end = new Date(
+                userInTraining.schedule.end
+              );
+              userInTraining.schedule.start = new Date(
+                0,
+                0,
+                0,
+                userInTraining.schedule.start.getHours(),
+                userInTraining.schedule.start.getMinutes()
+              );
+              userInTraining.schedule.end = new Date(
+                0,
+                0,
+                0,
+                userInTraining.schedule.end.getHours(),
+                userInTraining.schedule.end.getMinutes()
+              );
+            });
+            result.forEach((userInTraining) => {
+              this.loggedInUserTrainingIds.push(userInTraining.schedule.id);
+            });
+          }
+        });
+    }
   }
 
   public scheduleClosed() {
@@ -167,6 +213,8 @@ export class TrainerScheduleComponent implements OnInit {
                   detail: 'Sikertelen jelentkezés! Nincs aktív bérlete!',
                 });
               } else if (this.loggedInUser.role === 'TAG') {
+                let overlappingAttendance =
+                  this.checkOverlappingAttendance(schedule);
                 let insufficientPass = false;
                 switch (schedule.type) {
                   case 'yoga':
@@ -182,7 +230,14 @@ export class TrainerScheduleComponent implements OnInit {
                     insufficientPass = !this.currentUserPass?.pilates;
                     break;
                 }
-                if (insufficientPass) {
+                if (overlappingAttendance) {
+                  this.messageService.add({
+                    summary: 'Hiba!',
+                    severity: 'error',
+                    detail:
+                      'Sikertelen jelentkezés! Az edzés időpontja átfedésben van egy másik edzéssel, amelyre már jelentkezett!',
+                  });
+                } else if (insufficientPass) {
                   this.messageService.add({
                     summary: 'Hiba!',
                     severity: 'error',
@@ -198,8 +253,6 @@ export class TrainerScheduleComponent implements OnInit {
                         severity: 'success',
                         detail: 'Sikeres jelentkezés!',
                       });
-                    })
-                    .add(() => {
                       this.fetchData();
                     });
                 }
@@ -246,20 +299,44 @@ export class TrainerScheduleComponent implements OnInit {
 
   public hideNewDialog(): void {
     this.newScheduleDialog = false;
+    this.fetchData();
   }
 
   public saveNewSchedule(): void {
-    if (this.newSchedule.start < this.newSchedule.end) {
-      this.scheduleService.create(this.newSchedule).subscribe(() => {
-        this.messageService.add({
-          summary: 'Siker!',
-          severity: 'success',
-          detail: 'Sikeres mentés!',
+    this.newSchedule.start = new Date(
+      0,
+      0,
+      0,
+      this.newSchedule.start.getHours(),
+      this.newSchedule.start.getMinutes()
+    );
+    this.newSchedule.end = new Date(
+      0,
+      0,
+      0,
+      this.newSchedule.end.getHours(),
+      this.newSchedule.end.getMinutes()
+    );
+    if (this.newSchedule.start <= this.newSchedule.end) {
+      if (!this.checkOverlappingSchedule(this.newSchedule)) {
+        this.scheduleService.create(this.newSchedule).subscribe(() => {
+          this.messageService.add({
+            summary: 'Siker!',
+            severity: 'success',
+            detail: 'Sikeres mentés!',
+          });
+          this.fetchData();
         });
-        this.fetchData();
-      });
-      this.newScheduleDialog = false;
-      this.newSchedule = null;
+        this.newScheduleDialog = false;
+        this.newSchedule = null;
+      } else {
+        this.messageService.add({
+          summary: 'Hiba!',
+          severity: 'error',
+          detail:
+            'Sikertelen mentés! Ez az időpont átfedésben van egy létező órájának időpontjával!',
+        });
+      }
     } else {
       this.messageService.add({
         summary: 'Hiba!',
@@ -270,29 +347,69 @@ export class TrainerScheduleComponent implements OnInit {
     }
   }
 
+  public checkOverlappingSchedule(checkedSchedule: Schedule): Schedule {
+    return this.scheduleList.find(
+      (schedule) =>
+        schedule.id !== checkedSchedule.id &&
+        schedule.day === checkedSchedule.day &&
+        (schedule.start.getTime() === checkedSchedule.start.getTime() ||
+          schedule.end.getTime() === checkedSchedule.end.getTime() ||
+          (schedule.start.getTime() <= checkedSchedule.start.getTime() &&
+            schedule.end.getTime() >= checkedSchedule.end.getTime()) ||
+          (schedule.start.getTime() >= checkedSchedule.start.getTime() &&
+            schedule.end.getTime() <= checkedSchedule.end.getTime()) ||
+          (schedule.end.getTime() >= checkedSchedule.start.getTime() &&
+            schedule.start.getTime() <= checkedSchedule.start.getTime()) ||
+          (schedule.end.getTime() >= checkedSchedule.end.getTime() &&
+            schedule.start.getTime() <= checkedSchedule.end.getTime()))
+    );
+  }
+
   public editSchedule(schedule: ScheduleWithTime) {
     if (schedule) {
       this.editScheduleDialog = true;
       this.editedSchedule = schedule;
-      this.editedSchedule.start = new Date(this.editedSchedule.start);
-      this.editedSchedule.end = new Date(this.editedSchedule.end);
     }
   }
 
   public hideEditedDialog(): void {
     this.editScheduleDialog = false;
+    this.fetchData();
   }
   public saveEditedSchedule(): void {
+    this.editedSchedule.start = new Date(
+      0,
+      0,
+      0,
+      this.editedSchedule.start.getHours(),
+      this.editedSchedule.start.getMinutes()
+    );
+    this.editedSchedule.end = new Date(
+      0,
+      0,
+      0,
+      this.editedSchedule.end.getHours(),
+      this.editedSchedule.end.getMinutes()
+    );
     if (this.editedSchedule.start < this.editedSchedule.end) {
-      this.scheduleService.save(this.editedSchedule).subscribe(() => {
-        this.messageService.add({
-          summary: 'Siker!',
-          severity: 'success',
-          detail: 'Sikeres módosítás!',
+      if (!this.checkOverlappingSchedule(this.editedSchedule)) {
+        this.scheduleService.save(this.editedSchedule).subscribe(() => {
+          this.messageService.add({
+            summary: 'Siker!',
+            severity: 'success',
+            detail: 'Sikeres módosítás!',
+          });
+          this.fetchData();
         });
-        this.fetchData();
-      });
-      this.editScheduleDialog = false;
+        this.editScheduleDialog = false;
+      } else {
+        this.messageService.add({
+          summary: 'Hiba!',
+          severity: 'error',
+          detail:
+            'Sikertelen mentés! Ez az időpont átfedésben van egy létező órájának időpontjával!',
+        });
+      }
     } else {
       this.messageService.add({
         summary: 'Hiba!',
@@ -304,14 +421,95 @@ export class TrainerScheduleComponent implements OnInit {
   }
 
   public deleteSchedule(): void {
-    this.scheduleService.delete(this.editedSchedule.id).subscribe(() => {
-      this.messageService.add({
-        summary: 'Siker!',
-        severity: 'success',
-        detail: 'Sikeres törlés!',
-      })
-      this.editScheduleDialog = false;
-      this.fetchData();
-    })
+    this.confirmationService.confirm({
+      message:
+        'Biztosan törölni szeretné az órát? Ebben az esetben minden felhasználó lejelentkeztetésre kerül!',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        this.userInTrainingService
+          .deleteMany(this.editedSchedule.id)
+          .pipe(
+            switchMap(() => {
+              return this.scheduleService.delete(this.editedSchedule.id);
+            })
+          )
+          .subscribe(() => {
+            this.messageService.add({
+              summary: 'Siker!',
+              severity: 'success',
+              detail: 'Sikeres törlés!',
+            });
+            this.fetchData();
+            this.editScheduleDialog = false;
+          });
+      },
+    });
+  }
+
+  public showUsersInTraining(): void {
+    this.usersInTrainingDialog = true;
+    this.userInTrainingService
+      .getByScheduleId(this.editedSchedule.id)
+      .subscribe((result) => {
+        this.usersInTrainingForSchedule = result;
+      });
+  }
+
+  public hideUsersInTraining(): void {
+    this.usersInTrainingDialog = false;
+    this.fetchData();
+  }
+
+  public removeUserFromTraining(userInTraining: UserInTraining) {
+    this.confirmationService.confirm({
+      message: 'Biztosan le szeretné jelentkeztetni a tagot az edzésről?',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        this.userInTrainingService
+          .delete(userInTraining.id)
+          .subscribe((result) => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Siker!',
+              detail: 'A tagot sikeresen lejelentkeztette az edzésről!',
+            });
+            this.fetchData();
+            this.hideUsersInTraining();
+          });
+      },
+    });
+  }
+
+  public checkOverlappingAttendance(checkedSchedule: Schedule): UserInTraining {
+    return this.loggedInUserTrainings.find(
+      (userInTraining) =>
+        userInTraining.schedule.day === checkedSchedule.day &&
+        (userInTraining.schedule.start.getTime() ===
+          checkedSchedule.start.getTime() ||
+          userInTraining.schedule.end.getTime() ===
+            checkedSchedule.end.getTime() ||
+          (userInTraining.schedule.start.getTime() <=
+            checkedSchedule.start.getTime() &&
+            userInTraining.schedule.end.getTime() >=
+              checkedSchedule.end.getTime()) ||
+          (userInTraining.schedule.start.getTime() >=
+            checkedSchedule.start.getTime() &&
+            userInTraining.schedule.end.getTime() <=
+              checkedSchedule.end.getTime()) ||
+          (userInTraining.schedule.end.getTime() >=
+            checkedSchedule.start.getTime() &&
+            userInTraining.schedule.start.getTime() <=
+              checkedSchedule.start.getTime()) ||
+          (userInTraining.schedule.end.getTime() >=
+            checkedSchedule.end.getTime() &&
+            userInTraining.schedule.start.getTime() <=
+              checkedSchedule.end.getTime()))
+    );
   }
 }

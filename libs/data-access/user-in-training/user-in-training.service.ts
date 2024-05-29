@@ -25,4 +25,10 @@ export class UserInTrainingService extends DataService<UserInTraining> {
       .get<UserInTraining[]>(`${this.host}/${this.specUrlPart}/user/${id}`)
       .pipe(map((userInTraining) => userInTraining));
   }
+
+  public deleteMany(id: number) {
+    return this.http
+      .delete(`${this.host}/${this.specUrlPart}/deleteMany/${id}`)
+      .pipe(map((item) => item));
+  }
 }

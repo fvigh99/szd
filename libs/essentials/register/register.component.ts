@@ -26,6 +26,7 @@ import { InputTextModule } from 'primeng/inputtext';
 export class RegisterComponent {
   public registeredUser: User = {};
   public loading = false;
+  public confirmPassword: string;
   @Output() public backToLogin: EventEmitter<boolean> = new EventEmitter();
   @Output() public successfulRegister: EventEmitter<boolean> =
     new EventEmitter();
@@ -37,36 +38,46 @@ export class RegisterComponent {
   ) {}
 
   public register(): void {
-    (this.registeredUser.role = 'TAG'),
-      this.userService
-        .create(this.registeredUser)
-        .subscribe((result) => {
-          if (result) {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Siker!',
-              detail: 'Sikeres regisztráció!',
-            });
-            this.loading = true;
-            setTimeout(() => {
-              this.loading = false;
-              this.successfulRegister.emit(true);
-            }, 2000);
-          } else {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Hiba!',
-              detail: 'A felhasználónév már foglalt!',
-            });
-          }
-        })
-        .add(() => {
-          this.registeredUser = {};
-        });
+    if (this.registeredUser.password !== this.confirmPassword) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'A jelszó nem egyezik meg a jelszó megerősítéssel!',
+      });
+    } else {
+      (this.registeredUser.role = 'TAG'),
+        this.userService
+          .create(this.registeredUser)
+          .subscribe((result) => {
+            if (result) {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Siker!',
+                detail: 'Sikeres regisztráció!',
+              });
+              this.loading = true;
+              setTimeout(() => {
+                this.loading = false;
+                this.successfulRegister.emit(true);
+              }, 2000);
+            } else {
+              this.messageService.add({
+                severity: 'error',
+                summary: 'Hiba!',
+                detail: 'A felhasználónév már foglalt!',
+              });
+            }
+          })
+          .add(() => {
+            this.registeredUser = {};
+            this.confirmPassword = null;
+          });
+    }
   }
 
   public cancel(): void {
     this.backToLogin.emit(false);
     this.registeredUser = {};
+    this.confirmPassword = null;
   }
 }

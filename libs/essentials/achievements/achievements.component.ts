@@ -9,6 +9,7 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import {
   Achievement,
+  EarnedAchievement,
   FileUploadResult,
   Machine,
   User,
@@ -19,12 +20,13 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ToolbarModule } from 'primeng/toolbar';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MachineService } from 'libs/data-access/machine/machine.service';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { FileUploadEvent, FileUploadModule } from 'primeng/fileupload';
 import { HttpResponse } from '@angular/common/http';
 import { CarouselModule } from 'primeng/carousel';
 import { ButtonModule } from 'primeng/button';
+import { EarnedAchievementService } from 'libs/data-access/earned-achievement/earned-achievement.service';
 
 @Component({
   selector: 'app-achievements',
@@ -58,6 +60,7 @@ export class AchievementsComponent implements OnInit {
   public achievementTypeList: string[] = ['Egyéni', 'Csoportos'];
   public machineList: Machine[];
   public achievementList: Observable<Achievement[]>;
+  public earnedAchievementList: Observable<EarnedAchievement[]>;
   public groupTrainingTypeList: Array<string> = [
     'kickbox',
     'spinracing',
@@ -66,9 +69,12 @@ export class AchievementsComponent implements OnInit {
   ];
   public newAchievement: Achievement;
   public newAchievementDialog = false;
+  public earnedAchievementCount = -1;
+  public availableAchievements: Achievement[];
   constructor(
     private accountService: AccountService,
     private achievementService: AchievementService,
+    private earnedAchievementService: EarnedAchievementService,
     private machineService: MachineService,
     private messageService: MessageService,
     private confirmationService: ConfirmationService
@@ -76,8 +82,8 @@ export class AchievementsComponent implements OnInit {
 
   ngOnInit(): void {
     this.loggedInUser = this.accountService.userValue?.user_object;
-    this.machineService.fetch().subscribe((result) => {
-      this.machineList = result as Machine[];
+    this.machineService.getByFlag('A').subscribe((result) => {
+      this.machineList = result;
     });
     this.fetchData();
   }
@@ -89,6 +95,20 @@ export class AchievementsComponent implements OnInit {
 
   public fetchData(): void {
     this.achievementList = this.achievementService.fetch();
+    if (this.loggedInUser && this.loggedInUser?.role === 'TAG') {
+      this.earnedAchievementList =
+        this.earnedAchievementService.getEarnedAchievementByUserId(
+          this.loggedInUser.id
+        );
+      this.earnedAchievementService
+        .getEarnedAchievementByUserId(this.loggedInUser.id)
+        .subscribe((result) => {
+          this.earnedAchievementCount = result.length;
+        });
+    }
+    this.achievementService.fetch().subscribe((result) => {
+      this.availableAchievements = result;
+    });
   }
 
   public openEditedDialog(achievement: Achievement): void {
@@ -103,16 +123,59 @@ export class AchievementsComponent implements OnInit {
   }
 
   public saveEditedAchievement(): void {
-    this.achievementService.save(this.editedAchievement).subscribe(() => {
+    if (this.editedAchievement.icon) {
+      if (
+        !this.editedAchievement.machine?.id &&
+        this.editedAchievement.type === 'Egyéni'
+      ) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Hiba!',
+          detail: 'Nem adta meg a használt gépet!',
+        });
+      } else {
+        this.availableAchievements = this.availableAchievements.filter(
+          (achievement) => achievement.id !== this.editedAchievement.id
+        );
+        if (
+          (this.editedAchievement.machine?.id &&
+            this.availableAchievements.find(
+              (achievement) =>
+                achievement.machine?.id === this.editedAchievement.machine?.id
+            )) ||
+          (this.editedAchievement.typeOfGroupTraining &&
+            this.availableAchievements.find(
+              (achievement) =>
+                achievement.typeOfGroupTraining ===
+                this.editedAchievement.typeOfGroupTraining
+            ))
+        ) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Hiba!',
+            detail:
+              'Ilyen típusú kitűző már létezik! (használt gép / csoportos edzés típusa)',
+          });
+        } else {
+          this.achievementService.save(this.editedAchievement).subscribe(() => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Siker!',
+              detail: 'Kitűző sikeresen módosítva!',
+            });
+            this.editAchievementDialog = false;
+            this.editedAchievement = null;
+            this.fetchData();
+          });
+        }
+      }
+    } else {
       this.messageService.add({
-        severity: 'success',
-        summary: 'Siker!',
-        detail: 'Kitűző sikeresen módosítva!',
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'Nem töltött fel új ikont a kitűzőnek!',
       });
-      this.editAchievementDialog = false;
-      this.editedAchievement = null;
-      this.fetchData();
-    });
+    }
   }
 
   public deleteAchievement() {
@@ -146,16 +209,48 @@ export class AchievementsComponent implements OnInit {
 
   public saveNewAchievement(): void {
     if (this.newAchievement.icon) {
-      this.achievementService.create(this.newAchievement).subscribe(() => {
+      if (
+        !this.newAchievement.machine?.id &&
+        this.newAchievement.type === 'Egyéni'
+      ) {
         this.messageService.add({
-          severity: 'success',
-          summary: 'Siker!',
-          detail: 'Új kitűző sikeresen elmentve!',
+          severity: 'error',
+          summary: 'Hiba!',
+          detail: 'Nem adta meg a használt gépet!',
         });
-        this.newAchievementDialog = false;
-        this.newAchievement = null;
-        this.fetchData();
-      });
+      } else {
+        if (
+          (this.newAchievement.machine?.id &&
+            this.availableAchievements.find(
+              (achievement) =>
+                achievement.machine?.id === this.newAchievement.machine?.id
+            )) ||
+          (this.newAchievement.typeOfGroupTraining &&
+            this.availableAchievements.find(
+              (achievement) =>
+                achievement.typeOfGroupTraining ===
+                this.newAchievement.typeOfGroupTraining
+            ))
+        ) {
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Hiba!',
+            detail:
+              'Ilyen típusú kitűző már létezik! (használt gép / csoportos edzés típusa)',
+          });
+        } else {
+          this.achievementService.create(this.newAchievement).subscribe(() => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Siker!',
+              detail: 'Új kitűző sikeresen elmentve!',
+            });
+            this.newAchievementDialog = false;
+            this.newAchievement = null;
+            this.fetchData();
+          });
+        }
+      }
     } else {
       this.messageService.add({
         severity: 'error',
@@ -187,5 +282,37 @@ export class AchievementsComponent implements OnInit {
         achievement.icon = null;
       },
     });
+  }
+
+  public typeChanged(value: string, achievement: Achievement) {
+    if (value === 'Egyéni') {
+      achievement.typeOfGroupTraining = null;
+      achievement.eventCount = null;
+      achievement.machine = {};
+    } else {
+      achievement.machine = null;
+      achievement.duration = null;
+      achievement.intensity = null;
+      achievement.repetitionCount = null;
+      achievement.weight = null;
+    }
+  }
+
+  public machineChanged(value: Machine, achievement: Achievement) {
+    if (value) {
+      if (value.type === 'Súlyzós') {
+        achievement.intensity = null;
+        achievement.duration = null;
+      } else {
+        achievement.weight = null;
+        achievement.repetitionCount = null;
+      }
+    } else {
+      achievement.machine = {};
+      achievement.weight = null;
+      achievement.repetitionCount = null;
+      achievement.intensity = null;
+      achievement.duration = null;
+    }
   }
 }

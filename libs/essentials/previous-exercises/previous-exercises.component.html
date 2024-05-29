@@ -1,4 +1,14 @@
-<p-toast></p-toast>
+<div class="pl-2 pb-3">
+  <h1>Előző edzéseim</h1>
+</div>
+
+<div class="pl-2 pb-6">
+  <span>
+    Ezen az oldalon tekintheti meg az előző edzéseit, valamint felvehet új
+    edzést!
+  </span>
+</div>
+
 <div class="card">
   <p-toolbar styleClass="mb-4 gap-2">
     <button
@@ -121,8 +131,9 @@
         <label for="weight">Súly (kg)</label>
         <p-inputNumber
           type="text"
-          id="weight"
           name="weight"
+          [min]="1"
+          [max]="500"
           [(ngModel)]="newExercise.weight"
           [required]="
             newExercise.machine?.type && newExercise.machine?.type === 'Súlyzós'
@@ -136,8 +147,9 @@
         <label for="count">Ismétlés</label>
         <p-inputNumber
           type="text"
-          id="count"
           name="count"
+          [min]="1"
+          [max]="200"
           [(ngModel)]="newExercise.count"
           [required]="
             newExercise.machine?.type && newExercise.machine?.type === 'Súlyzós'
@@ -150,7 +162,6 @@
       >
         <label for="intensity">Intenzitás (1-10)</label>
         <p-inputNumber
-          id="intensity"
           name="intensity"
           [min]="1"
           [max]="10"
@@ -166,9 +177,10 @@
       >
         <label for="duration">Időtartam (perc)</label>
         <p-inputNumber
-          id="duration"
           name="duration"
           [(ngModel)]="newExercise.duration"
+          [min]="1"
+          [max]="180"
           [required]="
             newExercise.machine?.type && newExercise.machine?.type === 'Kardió'
           "
@@ -196,7 +208,7 @@
       <button
         pButton
         pRipple
-        label="Vissza"
+        label="Mégse"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideNewDialog()"

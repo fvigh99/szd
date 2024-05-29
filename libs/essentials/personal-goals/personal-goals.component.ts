@@ -31,6 +31,7 @@ export class PersonalGoalsComponent implements OnInit {
   public newPersonalGoalDialog = false;
   public newPersonalGoal: PersonalGoal;
   public editPersonalGoalDialog = false;
+  public uniqueTrainingPlan: string;
   constructor(
     private personalGoalService: PersonalGoalService,
     private accountService: AccountService,
@@ -47,6 +48,19 @@ export class PersonalGoalsComponent implements OnInit {
       .getByUserId(this.loggedInUser?.id)
       .subscribe((result) => {
         this.ownPersonalGoal = result;
+        let difference =
+          this.ownPersonalGoal.currentWeight - this.ownPersonalGoal.goalWeight;
+        if (difference > 50) {
+          this.uniqueTrainingPlan = '1.xls';
+        } else if (difference > 25) {
+          this.uniqueTrainingPlan = '2.xlsx';
+        } else if (difference > 5) {
+          this.uniqueTrainingPlan = '3.xls';
+        } else if (difference > -5) {
+          this.uniqueTrainingPlan = '4.xls';
+        } else {
+          this.uniqueTrainingPlan = '5.xls';
+        }
       });
   }
 
@@ -87,10 +101,19 @@ export class PersonalGoalsComponent implements OnInit {
   }
 
   public downloadExerciseSuggestion(): void {
+    console.log(this.uniqueTrainingPlan);
     let difference =
       this.ownPersonalGoal.currentWeight - this.ownPersonalGoal.goalWeight;
-    if (difference > 0) {
+    if (difference > 50) {
+      this.uniqueTrainingPlan = '1.xls';
+    } else if (difference > 25) {
+      this.uniqueTrainingPlan = '2.xlsx';
+    } else if (difference > 5) {
+      this.uniqueTrainingPlan = '3.xls';
+    } else if (difference > -5) {
+      this.uniqueTrainingPlan = '4.xls';
     } else {
+      this.uniqueTrainingPlan = '5.xls';
     }
   }
 }

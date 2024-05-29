@@ -6,7 +6,7 @@ import {
 import { AppComponent } from './app/app.component';
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { routes } from './app/app.routes';
-import { importProvidersFrom } from '@angular/core';
+import { LOCALE_ID, importProvidersFrom } from '@angular/core';
 import {
   HTTP_INTERCEPTORS,
   HttpClientModule,

@@ -3,39 +3,50 @@
   [resizable]="false"
   [modal]="true"
   [(visible)]="dialogVisible"
-  [style]="{ width: '85vw' }"
+  [style]="{ width: '95vw' }"
   [contentStyle]="{ height: '500px' }"
 >
-  <div class="card">
-    <p-toolbar *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
-      <button
-        pButton
-        pRipple
-        label="Új óra hozzáadása"
-        icon="pi pi-plus"
-        class="p-button-success mr-2"
-        (click)="openNew()"
-      ></button>
-    </p-toolbar>
+  <div>
+    <div class="pb-3" *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'">
+      <p-toolbar>
+        <button
+          pButton
+          pRipple
+          label="Új óra hozzáadása"
+          icon="pi pi-plus"
+          class="p-button-success mr-2"
+          (click)="openNew()"
+        ></button>
+      </p-toolbar>
+    </div>
 
-    <div class="pb-2" *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
+    <div class="pb-3" *ngIf="!loggedInUser" style="color: red">
+      Az órára való jelentkezéshez először be kell jelentkeznie!
+    </div>
+
+    <div class="pb-3" *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
       Az óra időpontjára kattintva tud jelentkezni az edzésre! Amennyiben egy
       órára már jelentkezett, az időpontra való kattintással le bír jelentkezni
       róla!
     </div>
 
-    <div class="pb-2">
-      <span *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
-        Zöld = Már jelentkezett az edzésre <br />
-      </span>
-      Piros = Az edzés jelenleg inaktív <br />
-      Sárga = Az edzésre nincs szabad hely <br />
+    <div class="pb-3" *ngIf="loggedInUser && loggedInUser.role === 'ADMIN'">
+      Az óra időpontjára kattintva tudja módosítani az edző órájának adatait,
+      valamint elérheti a jelentkezett tagok listáját.
+    </div>
+
+    <div class="pb-3">
+      <div *ngIf="loggedInUser && loggedInUser.role === 'TAG'">
+        Zöld = Már jelentkezett az edzésre
+      </div>
+      <div>Piros = Az edzés jelenleg inaktív</div>
+      <div>Sárga = Az edzésre nincs szabad hely</div>
     </div>
 
     <p-table
       [value]="displayableScheduleList | async"
       [tableStyle]="{ 'min-width': '50rem' }"
-      styleClass="p-datatable-striped"
+      styleClass="p-datatable-gridlines"
     >
       <ng-template pTemplate="header">
         <tr>
@@ -69,7 +80,10 @@
                 !loggedInUserTrainingIds.includes(schedule.monday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.monday)">
+            <a
+              (click)="trainingClicked(schedule.monday)"
+              *ngIf="schedule.monday"
+            >
               {{ schedule.monday?.startTime }} -
               {{ schedule.monday?.endTime }}
               <span *ngIf="schedule.monday"
@@ -92,7 +106,10 @@
                 !loggedInUserTrainingIds.includes(schedule.tuesday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.tuesday)">
+            <a
+              (click)="trainingClicked(schedule.tuesday)"
+              *ngIf="schedule.tuesday"
+            >
               {{ schedule.tuesday?.startTime }} -
               {{ schedule.tuesday?.endTime }}
               <span *ngIf="schedule.tuesday"
@@ -115,7 +132,10 @@
                 !loggedInUserTrainingIds.includes(schedule.wednesday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.wednesday)">
+            <a
+              (click)="trainingClicked(schedule.wednesday)"
+              *ngIf="schedule.wednesday"
+            >
               {{ schedule.wednesday?.startTime }} -
               {{ schedule.wednesday?.endTime }}
               <span *ngIf="schedule.wednesday"
@@ -138,7 +158,10 @@
                 !loggedInUserTrainingIds.includes(schedule.thursday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.thursday)">
+            <a
+              (click)="trainingClicked(schedule.thursday)"
+              *ngIf="schedule.thursday"
+            >
               {{ schedule.thursday?.startTime }} -
               {{ schedule.thursday?.endTime }}
               <span *ngIf="schedule.thursday"
@@ -161,7 +184,10 @@
                 !loggedInUserTrainingIds.includes(schedule.friday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.friday)">
+            <a
+              (click)="trainingClicked(schedule.friday)"
+              *ngIf="schedule.friday"
+            >
               {{ schedule.friday?.startTime }} - {{ schedule.friday?.endTime }}
               <span *ngIf="schedule.friday"
                 >({{ schedule.friday.type }}) [{{
@@ -183,7 +209,10 @@
                 !loggedInUserTrainingIds.includes(schedule.saturday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.saturday)">
+            <a
+              (click)="trainingClicked(schedule.saturday)"
+              *ngIf="schedule.saturday"
+            >
               {{ schedule.saturday?.startTime }} -
               {{ schedule.saturday?.endTime }}
               <span *ngIf="schedule.saturday"
@@ -206,7 +235,10 @@
                 !loggedInUserTrainingIds.includes(schedule.sunday?.id)
             }"
           >
-            <a (click)="trainingClicked(schedule.sunday)">
+            <a
+              (click)="trainingClicked(schedule.sunday)"
+              *ngIf="schedule.sunday"
+            >
               {{ schedule.sunday?.startTime }} - {{ schedule.sunday?.endTime }}
               <span *ngIf="schedule.sunday"
                 >({{ schedule.sunday.type }}) [{{
@@ -302,7 +334,7 @@
         <button
           pButton
           pRipple
-          label="Vissza"
+          label="Mégse"
           icon="pi pi-times"
           class="p-button-text"
           (click)="hideNewDialog()"
@@ -330,6 +362,14 @@
       [contentStyle]="{ overflow: 'visible' }"
       [draggable]="false"
     >
+      <p-toolbar>
+        <button
+          pButton
+          pRipple
+          label="Jelentkezett tagok megtekintése"
+          (click)="showUsersInTraining()"
+        ></button>
+      </p-toolbar>
       <ng-template pTemplate="content">
         <div class="field">
           <label for="day">Nap</label>
@@ -399,7 +439,7 @@
         <button
           pButton
           pRipple
-          label="Vissza"
+          label="Mégse"
           icon="pi pi-times"
           class="p-button-text"
           (click)="hideEditedDialog()"
@@ -414,15 +454,50 @@
           (click)="saveEditedSchedule()"
         ></button>
         <button
-        pButton
-        pRipple
-        label="Törlés"
-        icon="pi pi-trash"
-        class="p-button-text"
-        (click)="deleteSchedule()"
-      ></button>
+          pButton
+          pRipple
+          label="Törlés"
+          icon="pi pi-trash"
+          class="p-button-text"
+          (click)="deleteSchedule()"
+        ></button>
       </ng-template>
     </p-dialog>
   </form>
 </p-dialog>
+
+<form #usersInTraining="ngForm">
+  <p-dialog
+    [(visible)]="usersInTrainingDialog"
+    header="Jelentkezett tagok"
+    [modal]="true"
+    styleClass="p-fluid"
+    [contentStyle]="{ overflow: 'visible' }"
+    [draggable]="false"
+  >
+    <div class="pb-2">
+      A névre kattintva tudja eltávolítani a tagot a jelentkezettek listájából!
+    </div>
+    <ng-template pTemplate="content">
+      <ul>
+        <li *ngFor="let userInTraining of usersInTrainingForSchedule">
+          <a (click)="removeUserFromTraining(userInTraining)">
+            {{ userInTraining.user.firstname }}
+            {{ userInTraining.user.lastname }}
+          </a>
+        </li>
+      </ul>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Mégse"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideUsersInTraining()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>
 <p-confirmDialog></p-confirmDialog>

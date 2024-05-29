@@ -1,5 +1,5 @@
 import { Component, OnInit, ɵgetAsyncClassMetadataFn } from '@angular/core';
-import { AsyncPipe, CommonModule } from '@angular/common';
+import { AsyncPipe, CommonModule, CurrencyPipe } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { DialogModule } from 'primeng/dialog';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -36,6 +36,7 @@ import { faCheck, faX } from '@fortawesome/free-solid-svg-icons';
     InputTextModule,
     ConfirmDialogModule,
     FaIconComponent,
+    CurrencyPipe,
   ],
   templateUrl: './pass-list.component.html',
   styleUrl: './pass-list.component.scss',
@@ -73,13 +74,26 @@ export class PassListComponent implements OnInit {
   public onRowEditInit(editedPass: Pass) {}
 
   public onRowEditSave(editedPass: Pass) {
-    this.passService.save(editedPass).subscribe(() => {
+    if (
+      !editedPass.type ||
+      !editedPass.dailyEntryCount ||
+      !editedPass.entryPerWeek
+    ) {
       this.messageService.add({
-        severity: 'success',
-        summary: 'Siker!',
-        detail: 'Sikeres módosítás!',
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'Sikertelen módosítás! Hiányos adatok!',
       });
-    });
+      this.fetchData();
+    } else {
+      this.passService.save(editedPass).subscribe(() => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Siker!',
+          detail: 'Sikeres módosítás!',
+        });
+      });
+    }
   }
 
   public onRowEditCancel(editedPass: Pass, rowIndex: number) {}

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { AsyncPipe, CommonModule, NgIf } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ExerciseService } from 'libs/data-access/exercise/exercise.service';
-import { Observable } from 'rxjs';
+import { Observable, switchMap } from 'rxjs';
 import { Exercise, Machine, User } from 'libs/model/FcServerModel';
 import { ToolbarModule } from 'primeng/toolbar';
 import { ButtonModule } from 'primeng/button';
@@ -21,6 +21,8 @@ import { MachineService } from 'libs/data-access/machine/machine.service';
 import { AccountService } from 'libs/data-access/account/account.service';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { DropdownModule } from 'primeng/dropdown';
+import { EarnedAchievementService } from 'libs/data-access/earned-achievement/earned-achievement.service';
+import { MessagesModule } from 'primeng/messages';
 
 @Component({
   selector: 'fc-previous-exercises',
@@ -41,6 +43,7 @@ import { DropdownModule } from 'primeng/dropdown';
     AutoCompleteModule,
     InputNumberModule,
     DropdownModule,
+    MessagesModule,
   ],
   templateUrl: './previous-exercises.component.html',
   styleUrl: './previous-exercises.component.scss',
@@ -66,12 +69,13 @@ export class PreviousExercisesComponent implements OnInit {
     private messageService: MessageService,
     private machineService: MachineService,
     private accountService: AccountService,
+    private earnedAchievementService: EarnedAchievementService,
     private confirmationService: ConfirmationService
   ) {}
   ngOnInit(): void {
     this.loggedInUser = this.accountService.userValue?.user_object;
     this.fetchData();
-    this.machineService.fetch().subscribe((result) => {
+    this.machineService.getByFlag('A').subscribe((result) => {
       this.machineList = result;
     });
   }
@@ -99,33 +103,43 @@ export class PreviousExercisesComponent implements OnInit {
   public openNew() {
     this.newExercise = {
       machine: {},
-      date: new Date()
     };
     this.newExerciseDialog = true;
   }
 
   public saveNewExercise() {
+    if (!this.newExercise.date) {
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Hiba!',
+        detail: 'Nem adta meg az edzés időpontját!',
+      });
+      return;
+    }
     this.newExercise.user = this.loggedInUser;
     this.newExercise.date = new Date(this.newExercise.date);
     this.exerciseService.create(this.newExercise).subscribe((result) => {
-      if (result) {
-        this.messageService.add({
-          severity: 'success',
-          detail: 'Siker!',
-          summary: 'Sikeres mentés!',
-        });
-        this.newExerciseDialog = false;
-        this.fetchData();
-      } else {
-        this.messageService.add({
-          severity: 'error',
-          detail: 'Hiba!',
-          summary: 'Nem sikerült a mentés!',
-        });
-        this.newExercise = {
-          machine: {},
-        };
-        this.selectedMachine = {};
+      this.messageService.add({
+        severity: 'success',
+        summary: 'Siker!',
+        detail: 'Sikeres mentés!',
+      });
+      this.newExerciseDialog = false;
+      this.fetchData();
+      if (result.achievement) {
+        this.earnedAchievementService
+          .create({ user: this.loggedInUser, achievement: result.achievement })
+          .subscribe(() => {
+            this.messageService.add({
+              severity: 'info',
+              summary: 'Új megszerzett kitűző!',
+              detail:
+                'Megszerezte a(z) "' +
+                result.achievement.name +
+                '" nevű kitűzőt!',
+              life: 5000,
+            });
+          });
       }
     });
   }
@@ -146,18 +160,39 @@ export class PreviousExercisesComponent implements OnInit {
       acceptLabel: 'Igen',
       rejectLabel: 'Nem',
       accept: () => {
-        this.exerciseService
-          .delete(exercise.id)
-          .subscribe((result) => {
-            this.messageService.add({
-              severity: 'success',
-              detail: 'Siker!',
-              summary: 'Sikeres törlés!',
-            });
-          })
-          .add(() => {
-            this.fetchData();
+        this.exerciseService.delete(exercise.id).subscribe((result) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Siker!',
+            detail: 'Sikeres törlés!',
           });
+          this.fetchData();
+          if (result.achievement) {
+            this.earnedAchievementService
+              .getEarnedAchievementByUserId(this.loggedInUser.id)
+              .pipe(
+                switchMap((earnedAchievements) => {
+                  let earnedAchievementId = earnedAchievements.find(
+                    (earnedAchievement) =>
+                      earnedAchievement.achievement.id === result.achievement.id
+                  ).id;
+                  return this.earnedAchievementService.delete(
+                    earnedAchievementId
+                  );
+                })
+              )
+              .subscribe(() => {
+                this.messageService.add({
+                  severity: 'info',
+                  summary: 'Elvesztett kitűző!',
+                  detail:
+                    'Az edzés törlésével elvesztette a(z) "' +
+                    result.achievement.name +
+                    '" nevű kitűzőt!',
+                });
+              });
+          }
+        });
       },
     });
   }

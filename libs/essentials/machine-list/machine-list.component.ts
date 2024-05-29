@@ -48,6 +48,7 @@ export class MachineListComponent implements OnInit {
   public newMachine: Machine;
   public editedMachine: Machine;
   public typeList: string[] = ['Súlyzós', 'Kardió'];
+  public flag: string;
 
   constructor(
     private machineService: MachineService,
@@ -57,12 +58,13 @@ export class MachineListComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.fetchData();
     this.loggedInUser = this.accountService.userValue?.user_object;
+    this.flag = this.loggedInUser?.role !== 'ADMIN' ? 'A' : null;
+    this.fetchData();
   }
 
   public fetchData() {
-    this.machineList = this.machineService.fetch();
+    this.machineList = this.machineService.getByFlag(this.flag);
   }
 
   public imageClicked(value: Machine) {
@@ -133,17 +135,16 @@ export class MachineListComponent implements OnInit {
       acceptLabel: 'Igen',
       rejectLabel: 'Nem',
       accept: () => {
-        this.machineService
-          .delete(this.editedMachine.id)
-          .subscribe((result) => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Siker!',
-              detail: 'Sikeres törlés!',
-            });
-            this.editMachineDialog = false;
-            this.fetchData();
+        this.editedMachine.flag = 'D';
+        this.machineService.save(this.editedMachine).subscribe((result) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Siker!',
+            detail: 'Sikeres törlés!',
           });
+          this.editMachineDialog = false;
+          this.fetchData();
+        });
       },
     });
   }
@@ -168,6 +169,28 @@ export class MachineListComponent implements OnInit {
       rejectLabel: 'Nem',
       accept: () => {
         machine.picture = null;
+      },
+    });
+  }
+
+  public restoreMachine(): void {
+    this.confirmationService.confirm({
+      message: 'Biztosan vissza szeretné állítani a gépet?',
+      header: 'Megerősítés',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Igen',
+      rejectLabel: 'Nem',
+      accept: () => {
+        this.editedMachine.flag = 'A';
+        this.machineService.save(this.editedMachine).subscribe((result) => {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Siker!',
+            detail: 'Sikeres visszaállítás!',
+          });
+          this.editMachineDialog = false;
+          this.fetchData();
+        });
       },
     });
   }

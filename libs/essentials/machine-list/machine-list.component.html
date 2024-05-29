@@ -10,7 +10,6 @@
 </div>
 
 <div>
-  <p-toast></p-toast>
   <p-toolbar
     styleClass="mb-4 gap-2"
     *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
@@ -26,7 +25,7 @@
   </p-toolbar>
   <p-carousel
     [value]="machineList | async"
-    [numVisible]="3"
+    [numVisible]="2"
     [numScroll]="1"
     [circular]="false"
   >
@@ -37,7 +36,7 @@
         <div class="mb-3">
           <a (click)="imageClicked(machine)">
             <img
-              [src]="'assets/trainers/' + machine.picture"
+              src="./assets/machines/{{ machine.picture }}"
               [alt]="machine.name"
               class="w-6 shadow-2"
             />
@@ -64,7 +63,6 @@
         <input
           type="text"
           pInputText
-          id="name"
           name="name"
           [(ngModel)]="newMachine.name"
           required
@@ -74,7 +72,6 @@
       <div class="field">
         <label for="summary">Leírás</label>
         <textarea
-          id="summary"
           name="summary"
           [(ngModel)]="newMachine.summary"
           required
@@ -143,7 +140,7 @@
 <form #editMachineForm="ngForm">
   <p-dialog
     [(visible)]="editMachineDialog"
-    [style]="{ width: '450px' }"
+    [style]="{ width: '500px' }"
     [header]="
       loggedInUser && loggedInUser?.role === 'ADMIN'
         ? 'Gép módosítása'
@@ -158,7 +155,6 @@
         <input
           type="text"
           pInputText
-          id="name"
           name="name"
           [(ngModel)]="editedMachine.name"
           required
@@ -169,7 +165,6 @@
       <div class="field">
         <label for="summary">Leírás</label>
         <textarea
-          id="summary"
           name="summary"
           pInputTextarea
           [(ngModel)]="editedMachine.summary"
@@ -193,7 +188,6 @@
           *ngIf="!loggedInUser || loggedInUser?.role !== 'ADMIN'"
           type="text"
           pInputText
-          id="type"
           name="type"
           [(ngModel)]="editedMachine.type"
           required
@@ -247,13 +241,30 @@
         (click)="saveEditedMachine()"
       ></button>
       <button
-        *ngIf="loggedInUser && loggedInUser?.role === 'ADMIN'"
+        *ngIf="
+          loggedInUser &&
+          loggedInUser?.role === 'ADMIN' &&
+          editedMachine.flag === 'A'
+        "
         pButton
         pRipple
         label="Törlés"
         icon="pi pi-trash"
         class="p-button-text"
         (click)="deleteMachine()"
+      ></button>
+      <button
+        *ngIf="
+          loggedInUser &&
+          loggedInUser?.role === 'ADMIN' &&
+          editedMachine.flag === 'D'
+        "
+        pButton
+        pRipple
+        label="Visszaállítás"
+        icon="pi pi-undo"
+        class="p-button-text"
+        (click)="restoreMachine()"
       ></button>
     </ng-template>
   </p-dialog>

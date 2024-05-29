@@ -1,65 +1,65 @@
 <ng-container *ngIf="!register; else registerInProgress">
-  <div class="card">
-    <h4 class="card-header">Bejelentkezés</h4>
-    <div class="card-body">
-      <form #form="ngForm">
-        <div class="pb-2">
-          <input
-            pInputText
-            type="text"
-            name="username"
-            [placeholder]="'Felhasználónév'"
-            [(ngModel)]="username"
-            autofocus
-          />
-        </div>
-        <div class="pb-2">
-          <input
-            pInputText
-            type="password"
-            name="password"
-            [placeholder]="'Jelszó'"
-            [(ngModel)]="password"
-          />
-        </div>
-        <div class="pb-2">
-          <button
-            class="btn btn-primary"
-            pButton
-            pRipple
-            (click)="login()"
-            [disabled]="loading"
-          >
-            <span
-              *ngIf="loading"
-              class="spinner-border spinner-border-sm me-1"
-            ></span>
-            Bejelentkezés
-          </button>
-        </div>
-        <div class="pb-2">
-          <button
-            class="btn btn-secondary"
-            pButton
-            pRipple
-            (click)="navigateToRegister()"
-            [disabled]="loading"
-          >
-            Regisztráció
-          </button>
-          <button
-            class="btn btn-secondary mx-2"
-            pButton
-            pRipple
-            (click)="navigateToHomePage()"
-            [disabled]="loading"
-          >
-            Vissza
-          </button>
-        </div>
-      </form>
-    </div>
+  <div class="pb-3 pt-4 pl-2">
+    <h1>Bejelentkezés</h1>
   </div>
+  <form #form="ngForm">
+    <div class="pb-3">
+      <input
+        pInputText
+        type="text"
+        name="username"
+        [placeholder]="'Felhasználónév'"
+        [(ngModel)]="username"
+        autofocus
+        required
+      />
+    </div>
+    <div class="pb-4">
+      <input
+        pInputText
+        type="password"
+        name="password"
+        [placeholder]="'Jelszó'"
+        [(ngModel)]="password"
+        required
+      />
+    </div>
+    <div class="pb-2">
+      <button
+        class="p-button btn btn-primary"
+        pButton
+        pRipple
+        (click)="login()"
+        [disabled]="loading || !form.valid"
+      >
+        <span
+          *ngIf="loading"
+          class="spinner-border spinner-border-sm me-1"
+        ></span>
+        Bejelentkezés
+      </button>
+    </div>
+    <div class="pb-2">
+      <button
+        class="p-button btn btn-secondary"
+        pButton
+        pRipple
+        (click)="navigateToRegister()"
+        [disabled]="loading"
+      >
+        Regisztráció
+      </button>
+      <button
+        class="p-button btn btn-secondary mx-2"
+        pButton
+        pRipple
+        (click)="navigateToHomePage()"
+        [disabled]="loading"
+      >
+        Mégse
+      </button>
+    </div>
+  </form>
 </ng-container>
 <ng-template #registerInProgress>
   <fc-register
@@ -67,5 +67,3 @@
     (successfulRegister)="successfulRegister($event)"
   ></fc-register>
 </ng-template>
-
-<p-toast></p-toast>

@@ -172,18 +172,24 @@
     </p-dialog>
   </form>
   <div class="card pl-2">
+    <h4>Testmagasság: {{ ownPersonalGoal?.height }} cm</h4>
     <h4>Kezdeti súly: {{ ownPersonalGoal?.startWeight }} kg</h4>
     <h4>Aktuális súly: {{ ownPersonalGoal?.currentWeight }} kg</h4>
     <h4>Elérni kívánt súly: {{ ownPersonalGoal?.goalWeight }} kg</h4>
-    <h4>Testmagasság: {{ ownPersonalGoal?.height }} cm</h4>
   </div>
 
-  <button
-    pButton
-    pRipple
-    label="Edzésterv letöltése"
-    icon="pi pi-download"
-    class="p-button-text"
-    (click)="downloadExerciseSuggestion()"
-  ></button>
+  <a
+    href="./assets/trainingplans/{{ uniqueTrainingPlan }}"
+    target="_blank"
+    download="edzesterv.xls"
+  >
+    <button
+      pButton
+      pRipple
+      label="Edzésterv letöltése"
+      icon="pi pi-download"
+      class="p-button-text"
+      (click)="downloadExerciseSuggestion()"
+    ></button>
+  </a>
 </ng-template>

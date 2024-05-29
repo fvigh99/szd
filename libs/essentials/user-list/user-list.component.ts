@@ -69,29 +69,45 @@ export class UserListComponent implements OnInit {
   }
 
   public onRowEditSave(editedUser: User) {
-    if (editedUser.role === 'EDZO' && !editedUser.picture) {
+    if (
+      !editedUser.email ||
+      !editedUser.firstname ||
+      !editedUser.lastname ||
+      !editedUser.role ||
+      !editedUser.username
+    ) {
       this.messageService.add({
         severity: 'error',
         summary: 'Hiba!',
-        detail:
-          'Sikertelen módosítás! Edzőnek kötelező profilképet is feltölteni!',
+        detail: 'Sikertelen módosítás! Hiányos adatok!',
       });
-      this.rowEditing = false;
       this.fetchUsers();
+      this.rowEditing = false;
     } else {
-      this.userService
-        .save(editedUser)
-        .subscribe(() => {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Siker!',
-            detail: 'Sikeres módosítás!',
-          });
-          this.rowEditing = false;
-        })
-        .add(() => {
-          this.fetchUsers();
+      if (editedUser.role === 'EDZO' && !editedUser.picture) {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Hiba!',
+          detail:
+            'Sikertelen módosítás! Edzőnek kötelező profilképet is feltölteni!',
         });
+        this.rowEditing = false;
+        this.fetchUsers();
+      } else {
+        this.userService
+          .save(editedUser)
+          .subscribe(() => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Siker!',
+              detail: 'Sikeres módosítás!',
+            });
+            this.rowEditing = false;
+          })
+          .add(() => {
+            this.fetchUsers();
+          });
+      }
     }
   }
 
@@ -126,6 +142,11 @@ export class UserListComponent implements OnInit {
       rejectLabel: 'Nem',
       accept: () => {
         user.picture = null;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Siker!',
+          detail: 'Profilkép sikeresen törölve!',
+        });
       },
     });
   }

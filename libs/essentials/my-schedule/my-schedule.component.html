@@ -252,7 +252,7 @@
       <button
         pButton
         pRipple
-        label="Vissza"
+        label="Mégse"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideNewDialog()"
@@ -279,6 +279,14 @@
     styleClass="p-fluid"
     [contentStyle]="{ overflow: 'visible' }"
   >
+    <p-toolbar>
+      <button
+        pButton
+        pRipple
+        label="Jelentkezett tagok megtekintése"
+        (click)="showUsersInTraining()"
+      ></button>
+    </p-toolbar>
     <ng-template pTemplate="content">
       <div class="field">
         <label for="day">Nap</label>
@@ -348,7 +356,7 @@
       <button
         pButton
         pRipple
-        label="Vissza"
+        label="Mégse"
         icon="pi pi-times"
         class="p-button-text"
         (click)="hideEditedDialog()"
@@ -373,4 +381,39 @@
     </ng-template>
   </p-dialog>
 </form>
-<p-toast></p-toast>
+
+<form #usersInTraining="ngForm">
+  <p-dialog
+    [(visible)]="usersInTrainingDialog"
+    header="Jelentkezett tagok"
+    [modal]="true"
+    styleClass="p-fluid"
+    [contentStyle]="{ overflow: 'visible' }"
+    [draggable]="false"
+  >
+    <div class="pb-2">
+      A névre kattintva tudja eltávolítani a tagot a jelentkezettek listájából!
+    </div>
+    <ng-template pTemplate="content">
+      <ul>
+        <li *ngFor="let userInTraining of usersInTrainingForSchedule">
+          <a (click)="removeUserFromTraining(userInTraining)">
+            {{ userInTraining.user.firstname }}
+            {{ userInTraining.user.lastname }}
+          </a>
+        </li>
+      </ul>
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <button
+        pButton
+        pRipple
+        label="Mégse"
+        icon="pi pi-times"
+        class="p-button-text"
+        (click)="hideUsersInTraining()"
+      ></button>
+    </ng-template>
+  </p-dialog>
+</form>
+<p-confirmDialog></p-confirmDialog>

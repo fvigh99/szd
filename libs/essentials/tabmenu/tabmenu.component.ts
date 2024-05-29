@@ -33,7 +33,6 @@ export class TabmenuComponent implements OnInit {
   @Output() public loginInProgress: EventEmitter<boolean> = new EventEmitter();
   constructor(
     private router: Router,
-    private activatedRoute: ActivatedRoute,
     private accountService: AccountService,
     private messageService: MessageService
   ) {}
@@ -41,15 +40,7 @@ export class TabmenuComponent implements OnInit {
   ngOnInit(): void {
     this.loggedInUser = this.accountService.userValue?.user_object;
     this.setMenuItems();
-    this.activatedRoute.queryParams.subscribe((params) => {
-      if (params['page']) {
-        this.activeItem = this.items.find(
-          (menuItem) => menuItem.title === params['page']
-        );
-      } else {
-        this.activeItem = this.items[0];
-      }
-    });
+    this.router.navigate(['/page/home']);
   }
 
   public setMenuItems(): void {
@@ -118,13 +109,10 @@ export class TabmenuComponent implements OnInit {
         title: 'pass-list',
         label: 'Bérletek',
         disabled: this.login || this.loading,
+        visible: this.loggedInUser?.role !== 'EDZO',
         command: () => this.navigate('pass-list'),
       },
     ];
-  }
-
-  public onActiveItemChange(dataItem: MenuItem) {
-    this.router.navigate(['/page/', dataItem.title]);
   }
 
   public checkLoginStatus(value: User | null) {

@@ -1,13 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { DataService } from 'libs/model/DataService';
-import { Exercise } from 'libs/model/FcServerModel';
+import { Exercise, ExerciseWithAchievement } from 'libs/model/FcServerModel';
 import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
-export class ExerciseService extends DataService<Exercise> {
+export class ExerciseService extends DataService<ExerciseWithAchievement> {
   constructor(http: HttpClient) {
     super();
     this.http = http;
